@@ -34,7 +34,7 @@ def informational_prompt(nlq_confidence: int, prompt: str):
     print(f"❌ Gate Team Rejected - Confidence too low: {nlq_confidence}")
     exit()
 
-def data_analyst_prompt_assistant(nlq_confidence: int, prompt: str, db: PostgresManager, agent_instruments, assistant_name: str):
+def data_analysis_prompt(nlq_confidence: int, prompt: str, db: PostgresManager ,agent_instruments, assistant_name: str):
     print(f"✅ Gate Team Approved - Valid confidence: {nlq_confidence}")
 
     database_embedder = embeddings.DatabaseEmbedder(db)
@@ -94,7 +94,7 @@ def prompt_confidence(prompt: str, agent_instruments) -> int:
     return int(gate_orchestrator.last_message_str)
 
 
-def data_analyst_prompt_autogen(prompt: str, agent_instruments, assistant_name: str):
+def data_analyst_prompt_autogen(prompt: str, agent_instruments):
     # ---------- Simple Prompt Solution - Same thing, only 2 api calls instead of 8+ ------------
     tools = [
         TurboTool("run_sql", run_sql_tool_config, agent_instruments.run_sql),
@@ -113,14 +113,3 @@ def data_analyst_prompt_autogen(prompt: str, agent_instruments, assistant_name: 
     )
     agent_instruments.validate_run_sql()
 
-    # ----------- Example use case of Turbo4 and the Assistants API ------------
-    assistant = Turbo4()
-    (
-        assistant.get_or_create_assistant(assistant_name)
-        .make_thread()
-        .equip_tools(tools)
-        .add_message("Generate 10 random facts about LLM technology.")
-        .run_thread()
-        .add_message("Use the store_fact function to 1 fact.")
-        .run_thread(toolbox=["store_fact"])
-    )
