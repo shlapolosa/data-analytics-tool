@@ -223,7 +223,10 @@ class PromptHandler:
             case 1 | 2:
                 return InformationalPromptExecutor(self.prompt, self.agent_instruments, "SQL_Analyst")
             case 3 | 4 | 5:
-                if not os.environ.get("OPENAI_API_KEY"):                                                                                                                                    
+                from dotenv import load_dotenv
+                load_dotenv()  # Load environment variables from a .env file
+
+                if not os.getenv("OPENAI_API_KEY"):                                                                                                                                    
                      return AutogenDataAnalystPromptExecutor(self.prompt, self.agent_instruments)                                                                                            
                 else:                                                                                                                                                                       
                      return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, nlq_confidence)
