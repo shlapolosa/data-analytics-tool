@@ -49,9 +49,8 @@ def main():
     session_id = rand.generate_session_id(assistant_name + raw_prompt)
 
     with PostgresAgentInstruments(DB_URL, session_id) as (agent_instruments, db):
-        prompt_handler = PromptHandler(prompt, agent_instruments)
-        executor = prompt_handler.assess_prompt(db)
-        executor.execute()
+        with PromptHandler(prompt, agent_instruments) as executor:
+            executor.execute()
 
 
 if __name__ == "__main__":
