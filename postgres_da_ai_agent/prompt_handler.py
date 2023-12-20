@@ -199,11 +199,13 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
                     f"❌ Orchestrator failed. Team: {data_eng_orchestrator.name} Failed"
                 )
 
-        # ----------- Data Insights Team: Based on sql table definitions and a prompt generate novel insights -------------
-        # code: create a new function called innovation_suggestions in AutogenDataAnalystPromptExecutor
-        # code: copy the rest of the code in this function till line 241 and add it as logic in the new function above
-        # code: verify all dependencies cattering for all parameters if needed or referencing self where it makes sense, pass as few parameters as possible to the new function
-                
+    def innovation_suggestions(self):
+        core_and_related_table_definitions = (
+            self.database_embedder.get_table_definitions_from_names(
+                self.related_table_names + self.similar_tables
+            )
+        )
+
         innovation_prompt = f"Given this database query: '{self.prompt}'. Generate novel insights and new database queries to give business insights."
 
         insights_prompt = llm.add_cap_ref(
