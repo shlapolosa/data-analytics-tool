@@ -230,7 +230,7 @@ class PromptHandler:
                 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
                 load_dotenv(dotenv_path, verbose=True)
         
-                if os.getenv("USE_OPENAI_API"):                                                                                                                                    
+                if os.getenv("USE_OPENAI_API") == 'True':                                                                                                                        
                     return AutogenDataAnalystPromptExecutor(self.prompt, self.agent_instruments)                                                                                            
                 else:                                                                                                                                                                       
                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, nlq_confidence)
