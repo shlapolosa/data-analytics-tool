@@ -209,8 +209,9 @@ class PromptHandler:
         self.prompt = prompt
         self.agent_instruments = agent_instruments
 
-    def __enter__(self):
-        return self
+    def __enter__(self, db: PostgresManager) -> PromptExecutor:
+        self.db = db
+        return self.assess_prompt(db)
 
     def __exit__(self, exc_type, exc_value, traceback):
         pass
