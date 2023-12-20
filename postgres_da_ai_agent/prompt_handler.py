@@ -205,9 +205,10 @@ class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
         print(f"✅ Turbo4 Assistant finished.")
 
 class PromptHandler:
-    def __init__(self, prompt: str, agent_instruments):
+    def __init__(self, prompt: str, agent_instruments, db: PostgresManager):
         self.prompt = prompt
         self.agent_instruments = agent_instruments
+        self.db = db
 
     def __enter__(self) -> PromptExecutor:
         return self.assess_prompt(self.db)
