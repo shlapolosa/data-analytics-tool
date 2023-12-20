@@ -4,7 +4,7 @@ from postgres_da_ai_agent.modules import embeddings
 from postgres_da_ai_agent.types import ConversationResult
 from postgres_da_ai_agent.agents import agents
 from postgres_da_ai_agent.modules import llm
-from postgres_da_ai_agent.prompt_handler import informational_prompt, data_analysis_prompt, invalid_prompt, prompt_confidence
+from postgres_da_ai_agent.prompt_handler import PromptHandler
 import argparse
 import os
 
@@ -49,7 +49,7 @@ def main():
     session_id = rand.generate_session_id(assistant_name + raw_prompt)
 
     with PostgresAgentInstruments(DB_URL, session_id) as (agent_instruments, db):
-        with PromptHandler(prompt, agent_instruments) as executor:
+        with PromptHandler(prompt, agent_instruments, db) as executor:
             executor.execute()
 
 
