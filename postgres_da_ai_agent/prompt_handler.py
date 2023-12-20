@@ -228,7 +228,7 @@ class PromptHandler:
 
                 # Assuming the .env file is at the root of the project
                 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
-                load_dotenv(dotenv_path)
+                load_dotenv(dotenv_path, verbose=True)
 
                 if not os.getenv("OPENAI_API_KEY"):                                                                                                                                    
                      return AutogenDataAnalystPromptExecutor(self.prompt, self.agent_instruments)                                                                                            
