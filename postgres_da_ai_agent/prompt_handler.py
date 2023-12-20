@@ -160,13 +160,14 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
         self.agent_instruments.validate_run_sql()
 
 class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
-    def __init__(self, prompt: str, agent_instruments, assistant_name: str, db: PostgresManager):
+    def __init__(self, prompt: str, agent_instruments, assistant_name: str, db: PostgresManager, nlq_confidence: int):
         super().__init__(prompt, agent_instruments)
         self.assistant_name = assistant_name
         self.db = db
+        self.nlq_confidence = nlq_confidence
 
     def execute(self):
-        print(f"✅ Gate Team Approved - Valid confidence: {self._prompt_confidence()}")
+        print(f"✅ Gate Team Approved - Valid confidence: {self.nlq_confidence}")
 
         database_embedder = embeddings.DatabaseEmbedder(self.db)
         table_definitions = database_embedder.get_similar_table_defs_for_prompt(self.prompt)
@@ -225,7 +226,8 @@ class PromptHandler:
                 if not os.environ.get("OPENAI_API_KEY"):                                                                                                                                    
                      return AutogenDataAnalystPromptExecutor(self.prompt, self.agent_instruments)                                                                                            
                 else:                                                                                                                                                                       
-                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db)
+                     confidence = self._prompt_confidence()
+                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, confidence)
 
 
     def _prompt_confidence(self) -> int:
