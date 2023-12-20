@@ -3,7 +3,7 @@ from postgres_da_ai_agent.modules import rand
 from postgres_da_ai_agent.modules import embeddings
 from postgres_da_ai_agent.types import ConversationResult
 from postgres_da_ai_agent.agents import agents
-from postgres_da_ai_agent.prompt_handler import informational_prompt, data_analysis_prompt, invalid_response
+from postgres_da_ai_agent.prompt_handler import informational_prompt, data_analysis_prompt, invalid_response, prompt_confidence
 import argparse
 import os
 
@@ -75,20 +75,6 @@ def main():
 
         # code: move gate_orchestrator logic into its own function called prompt_confidence that returns nlq_confidence
 
-        def prompt_confidence(prompt: str) -> int:
-            gate_orchestrator = agents.build_team_orchestrator(
-                "scrum_master",
-                agent_instruments,
-                validate_results=lambda: (True, ""),
-            )
-
-            gate_orchestrator: ConversationResult = (
-                gate_orchestrator.sequential_conversation(prompt)
-            )
-
-            print("gate_orchestrator.last_message_str", gate_orchestrator.last_message_str)
-
-            return int(gate_orchestrator.last_message_str)
 
         nlq_confidence = prompt_confidence(prompt)
 

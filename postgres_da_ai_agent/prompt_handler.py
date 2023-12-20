@@ -50,3 +50,20 @@ def data_analysis_prompt(nlq_confidence: int, prompt: str, table_definitions: st
 def invalid_response():
     print("❌ Gate Team Rejected - Invalid response")
     exit()
+from postgres_da_ai_agent.agents import agents
+from postgres_da_ai_agent.types import ConversationResult
+
+def prompt_confidence(prompt: str) -> int:
+    gate_orchestrator = agents.build_team_orchestrator(
+        "scrum_master",
+        agent_instruments,
+        validate_results=lambda: (True, ""),
+    )
+
+    gate_orchestrator: ConversationResult = (
+        gate_orchestrator.sequential_conversation(prompt)
+    )
+
+    print("gate_orchestrator.last_message_str", gate_orchestrator.last_message_str)
+
+    return int(gate_orchestrator.last_message_str)
