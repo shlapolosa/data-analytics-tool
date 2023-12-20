@@ -60,7 +60,7 @@ def main():
                 invalid_prompt()
 
         # alternatively Call the new function data_analyst_prompt_autogen
-        # data_analyst_prompt_autogen(prompt, agent_instruments, assistant_name)
+        # data_analyst_prompt_autogen(prompt, agent_instruments)
 
 
 if __name__ == "__main__":
