@@ -199,10 +199,42 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
                     f"❌ Orchestrator failed. Team: {data_eng_orchestrator.name} Failed"
                 )
 
+    def innovation_suggestions(self):
         # ----------- Data Insights Team: Based on sql table definitions and a prompt generate novel insights -------------
-        # code: create a new function called innovation_suggestions in AutogenDataAnalystPromptExecutor
-                
         innovation_prompt = f"Given this database query: '{self.prompt}'. Generate novel insights and new database queries to give business insights."
+        insights_prompt = llm.add_cap_ref(
+            innovation_prompt,
+            f"Use these {POSTGRES_TABLE_DEFINITIONS_CAP_REF} to satisfy the database query.",
+            POSTGRES_TABLE_DEFINITIONS_CAP_REF,
+            self.core_and_related_table_definitions,
+        )
+
+        data_insights_orchestrator = agents.build_team_orchestrator(
+            "data_insights",
+            self.agent_instruments,
+            validate_results=self.agent_instruments.validate_innovation_files,
+        )
+
+        data_insights_conversation_result: ConversationResult = (
+            data_insights_orchestrator.round_robin_conversation(
+                insights_prompt, loops=1
+            )
+        )
+
+        match data_insights_conversation_result:
+            case ConversationResult(
+                success=True, cost=data_insights_cost, tokens=data_insights_tokens
+            ):
+                print(
+                    f"✅ Orchestrator was successful. Team: {data_insights_orchestrator.name}"
+                )
+                print(
+                    f"💰📊🤖 {data_insights_orchestrator.name} Cost: {data_insights_cost}, tokens: {data_insights_tokens}"
+                )
+            case _:
+                print(
+                    f"❌ Orchestrator failed. Team: {data_insights_orchestrator.name} Failed"
+                )
 
         insights_prompt = llm.add_cap_ref(
             innovation_prompt,
