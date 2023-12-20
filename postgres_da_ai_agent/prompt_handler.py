@@ -118,7 +118,7 @@ class PromptExecutor:
         self.prompt = prompt
         self.agent_instruments = agent_instruments
 
-    def __enter__(self) -> PromptExecutor:
+    def __enter__(self):
         return self.assess_prompt(self.db)
 
     def __exit__(self, exc_type, exc_value, traceback):
