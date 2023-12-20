@@ -170,7 +170,7 @@ class PromptHandler:
         # This is a placeholder for the actual implementation.
         pass
 
-    def prompt_confidence(self) -> int:
+    def _prompt_confidence(self) -> int:
         gate_orchestrator = agents.build_team_orchestrator(
             "scrum_master",
             self.agent_instruments,
