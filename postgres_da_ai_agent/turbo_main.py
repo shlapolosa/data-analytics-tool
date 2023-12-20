@@ -49,23 +49,9 @@ def main():
     session_id = rand.generate_session_id(assistant_name + raw_prompt)
 
     with PostgresAgentInstruments(DB_URL, session_id) as (agent_instruments, db):
-        # code: remove line 53
-        nlq_confidence = prompt_confidence(prompt,agent_instruments=agent_instruments)
-
-        # code: remove match statement and all cases
-        match nlq_confidence:
-            case (1 | 2):
-                informational_prompt(nlq_confidence,prompt)
-            case (3 | 4 | 5):
-                data_analysis_prompt(nlq_confidence, prompt, db, agent_instruments, assistant_name)
-            case _:
-                invalid_prompt()
-
-        # code: remove all comments on line 65 and line 66
-        # alternatively Call the new function data_analyst_prompt_autogen
-        # data_analyst_prompt_autogen(prompt, agent_instruments)
-        # code: create an instance of PromptHandler and run the assess_prompt function
-        # code: execute the PromptExecutor returned above 
+        prompt_handler = PromptHandler(prompt, agent_instruments)
+        executor = prompt_handler.assess_prompt(db)
+        executor.execute()
 
 
 if __name__ == "__main__":
