@@ -226,8 +226,7 @@ class PromptHandler:
                 if not os.environ.get("OPENAI_API_KEY"):                                                                                                                                    
                      return AutogenDataAnalystPromptExecutor(self.prompt, self.agent_instruments)                                                                                            
                 else:                                                                                                                                                                       
-                     confidence = self._prompt_confidence()
-                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, confidence)
+                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, nlq_confidence)
 
 
     def _prompt_confidence(self) -> int:
