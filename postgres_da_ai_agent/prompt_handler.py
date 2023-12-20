@@ -113,3 +113,22 @@ def data_analyst_prompt_autogen(prompt: str, agent_instruments):
     )
     agent_instruments.validate_run_sql()
 
+class PromptHandler:
+    def __init__(self, prompt: str, agent_instruments):
+        self.prompt = prompt
+        self.agent_instruments = agent_instruments
+
+    def __enter__(self):
+        # This method will be called when the context manager is entered.
+        # You might want to add some initialization or setup code here.
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        # This method will be called when the context manager is exited.
+        # You can add cleanup code here.
+        pass
+
+    def assess_prompt(self):
+        # Implement the logic to assess the prompt here.
+        # This is a placeholder for the actual implementation.
+        pass
