@@ -146,7 +146,7 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
         # ---------- Simple Prompt Solution - Same thing, only 2 api calls instead of 8+ ------------
         map_table_name_to_table_def = self.db.get_table_definition_map_for_embeddings()
 
-        database_embedder = embeddings.DatabaseEmbedder()
+        database_embedder = embeddings.DatabaseEmbedder(self.db)
 
         for name, table_def in map_table_name_to_table_def.items():
             database_embedder.add_table(name, table_def)
@@ -166,7 +166,7 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
         )
 
         prompt = llm.add_cap_ref(
-            prompt,
+            self.prompt,
             f"Use these {POSTGRES_TABLE_DEFINITIONS_CAP_REF} to satisfy the database query.",
             POSTGRES_TABLE_DEFINITIONS_CAP_REF,
             table_definitions,
@@ -181,7 +181,7 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
         )
 
         data_eng_conversation_result: ConversationResult = (
-            data_eng_orchestrator.sequential_conversation(self.prompt)
+            data_eng_orchestrator.sequential_conversation(prompt)
         )
 
         match data_eng_conversation_result:
@@ -200,7 +200,10 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
                 )
 
         # ----------- Data Insights Team: Based on sql table definitions and a prompt generate novel insights -------------
-
+        # code: create a new function called innovation_suggestions in AutogenDataAnalystPromptExecutor
+        # code: copy the rest of the code in this function till line 241 and add it as logic in the new function above
+        # code: verify all dependencies cattering for all parameters if needed or referencing self where it makes sense, pass as few parameters as possible to the new function
+                
         innovation_prompt = f"Given this database query: '{self.prompt}'. Generate novel insights and new database queries to give business insights."
 
         insights_prompt = llm.add_cap_ref(
@@ -308,7 +311,7 @@ class PromptHandler:
                 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
                 load_dotenv(dotenv_path, verbose=True)
                 print("OPENAI_API_KEY "+os.getenv("OPENAI_API_KEY"))
-                if len(os.getenv("OPENAI_API_KEY", '').strip()) == 0:                                                                                                                        
+                if True:                                                                                                                        
                     return AutogenDataAnalystPromptExecutor(self.prompt, db, self.agent_instruments)                                                                                            
                 else:                                                                                                                                                                       
                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, nlq_confidence)
