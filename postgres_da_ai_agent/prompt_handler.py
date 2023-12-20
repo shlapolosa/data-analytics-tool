@@ -165,16 +165,16 @@ class PromptHandler:
     def __exit__(self, exc_type, exc_value, traceback):
         pass
 
-    def assess_prompt(self, assistant_name: str, db: PostgresManager) -> PromptExecutor:
+    def assess_prompt(self, db: PostgresManager) -> PromptExecutor:
         nlq_confidence = self._prompt_confidence()
         match nlq_confidence:
             case 1 | 2:
-                return InformationalPromptExecutor(self.prompt, self.agent_instruments, assistant_name)
+                return InformationalPromptExecutor(self.prompt, self.agent_instruments, "SQL_Analyst")
             case 3 | 4 | 5:
                 if not os.environ.get("OPENAI_API_KEY"):                                                                                                                                    
                      return AutogenDataAnalystPromptExecutor(self.prompt, self.agent_instruments)                                                                                            
                 else:                                                                                                                                                                       
-                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, assistant_name, db)
+                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db)
 
 
     def _prompt_confidence(self) -> int:
