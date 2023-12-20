@@ -6,6 +6,8 @@ from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
 from postgres_da_ai_agent.modules import llm
 from postgres_da_ai_agent.modules import rand
 from postgres_da_ai_agent.modules import embeddings
+from postgres_da_ai_agent.agents import agents
+from postgres_da_ai_agent.types import ConversationResult
 import argparse
 
 DB_URL = os.environ.get("DATABASE_URL")
@@ -73,6 +75,34 @@ def main():
         table_definitions = database_embedder.get_similar_table_defs_for_prompt(
             raw_prompt
         )
+
+        # code: move gate_orchestrator logic into its own function called prompt_confidence that returns nlq_confidence
+
+        gate_orchestrator = agents.build_team_orchestrator(
+            "scrum_master",
+            agent_instruments,
+            validate_results=lambda: (True, ""),
+        )
+
+        gate_orchestrator: ConversationResult = (
+            gate_orchestrator.sequential_conversation(prompt)
+        )
+
+        print("gate_orchestrator.last_message_str", gate_orchestrator.last_message_str)
+
+        nlq_confidence = int(gate_orchestrator.last_message_str)
+
+        match nlq_confidence:
+            case (1 | 2):
+                print(f"❌ Gate Team Rejected - Confidence too low: {nlq_confidence}")
+                # create a new function called informational_prompt and move print above to that function. also exit
+                return
+            case (3 | 4 | 5):
+                print(f"✅ Gate Team Approved - Valid confidence: {nlq_confidence}")
+                # create new function called data_analysis_prompt and move print above to that function. also move all logic from line 107 to line 165 into this function.
+            case _:
+                print("❌ Gate Team Rejected - Invalid response")
+                return
 
         prompt = llm.add_cap_ref(
             prompt,
