@@ -11,8 +11,12 @@ def informational_prompt(nlq_confidence: int):
     print(f"❌ Gate Team Rejected - Confidence too low: {nlq_confidence}")
     exit()
 
-def data_analysis_prompt(nlq_confidence: int, prompt: str, table_definitions: str, agent_instruments, assistant_name: str):
+def data_analysis_prompt(nlq_confidence: int, prompt: str, agent_instruments, assistant_name: str):
     print(f"✅ Gate Team Approved - Valid confidence: {nlq_confidence}")
+
+    # Moved the table_definitions assignment inside the function
+    database_embedder = embeddings.DatabaseEmbedder(agent_instruments.db)
+    table_definitions = database_embedder.get_similar_table_defs_for_prompt(prompt)
 
     prompt = llm.add_cap_ref(
         prompt,
