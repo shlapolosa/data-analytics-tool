@@ -2,20 +2,42 @@ from typing import List
 from postgres_da_ai_agent.types import TurboTool
 from postgres_da_ai_agent.agents.turbo4 import Turbo4
 from postgres_da_ai_agent.modules import llm
-
+from postgres_da_ai_agent.modules import embeddings
+from postgres_da_ai_agent.modules.db import PostgresManager
+from postgres_da_ai_agent.agents import agents
+from postgres_da_ai_agent.types import ConversationResult
 import os
 
 POSTGRES_TABLE_DEFINITIONS_CAP_REF = "TABLE_DEFINITIONS"
 
-def informational_prompt(nlq_confidence: int):
+
+run_sql_tool_config = {
+    "type": "function",
+    "function": {
+        "name": "run_sql",
+        "description": "Run a SQL query against the postgres database",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "sql": {
+                    "type": "string",
+                    "description": "The SQL query to run",
+                }
+            },
+            "required": ["sql"],
+        },
+    },
+}
+
+
+def informational_prompt(nlq_confidence: int, prompt: str):
     print(f"❌ Gate Team Rejected - Confidence too low: {nlq_confidence}")
     exit()
 
-def data_analysis_prompt(nlq_confidence: int, prompt: str, agent_instruments, assistant_name: str):
+def data_analysis_prompt(nlq_confidence: int, prompt: str, db: PostgresManager ,agent_instruments, assistant_name: str):
     print(f"✅ Gate Team Approved - Valid confidence: {nlq_confidence}")
 
-    # Moved the table_definitions assignment inside the function
-    database_embedder = embeddings.DatabaseEmbedder(agent_instruments.db)
+    database_embedder = embeddings.DatabaseEmbedder(db)
     table_definitions = database_embedder.get_similar_table_defs_for_prompt(prompt)
 
     prompt = llm.add_cap_ref(
@@ -51,13 +73,12 @@ def data_analysis_prompt(nlq_confidence: int, prompt: str, agent_instruments, as
 
     print(f"✅ Turbo4 Assistant finished.")
 
-def invalid_response():
+def invalid_prompt():
     print("❌ Gate Team Rejected - Invalid response")
     exit()
-from postgres_da_ai_agent.agents import agents
-from postgres_da_ai_agent.types import ConversationResult
 
-def prompt_confidence(prompt: str) -> int:
+
+def prompt_confidence(prompt: str, agent_instruments) -> int:
     gate_orchestrator = agents.build_team_orchestrator(
         "scrum_master",
         agent_instruments,

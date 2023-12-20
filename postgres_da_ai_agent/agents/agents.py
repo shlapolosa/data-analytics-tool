@@ -9,7 +9,7 @@ import guidance
 
 
 USER_PROXY_PROMPT = "A human admin. Interact with the Product Manager to discuss the plan. Plan execution needs to be approved by this admin."
-DATA_ENGINEER_PROMPT = "A Data Engineer. Generate the initial SQL based on the requirements provided. Send it to the Sr Data Analyst to be executed. "
+DATA_ENGINEER_PROMPT = "A Data Engineer. Generate the initial SQL based on the requirements provided. Only generate the SQL if you have sufficient TABLE_DEFINITIONS to work with. When generating the SQL beware that the tables are in the 'atomic' schema. Send it to the Sr Data Analyst to be executed. "
 SR_DATA_ANALYST_PROMPT = "Sr Data Analyst. You run the SQL query using the run_sql function, send the raw response to the data viz team. You use the run_sql function exclusively."
 
 

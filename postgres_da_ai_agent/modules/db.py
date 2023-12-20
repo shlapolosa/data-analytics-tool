@@ -60,31 +60,42 @@ class PostgresManager:
         """
 
         get_def_stmt = """
-        SELECT pg_class.relname as tablename,
-            pg_attribute.attnum,
-            pg_attribute.attname,
-            format_type(atttypid, atttypmod)
-        FROM pg_class
-        JOIN pg_namespace ON pg_namespace.oid = pg_class.relnamespace
-        JOIN pg_attribute ON pg_attribute.attrelid = pg_class.oid
-        WHERE pg_attribute.attnum > 0
+            SELECT pg_namespace.nspname as schemaname,
+                pg_class.relname as tablename,
+                pg_attribute.attnum,
+                pg_attribute.attname,
+                format_type(atttypid, atttypmod)
+            FROM pg_class
+            JOIN pg_namespace ON pg_namespace.oid = pg_class.relnamespace
+            JOIN pg_attribute ON pg_attribute.attrelid = pg_class.oid
+            WHERE pg_attribute.attnum > 0
             AND pg_class.relname = %s
-            AND pg_namespace.nspname = 'public'  -- Assuming you're interested in public schema
+            AND pg_namespace.nspname = 'atomic'  -- Replace 'atomic' with your schema name if different
         """
         self.cur.execute(get_def_stmt, (table_name,))
         rows = self.cur.fetchall()
-        create_table_stmt = "CREATE TABLE {} (\n".format(table_name)
+
+        # Check if rows were fetched
+        if not rows:
+            return "Table not found or no schema information available."
+
+        # Using the schema name from the first row (all rows will have the same schema name)
+        schema_name = rows[0][0]
+        full_table_name = f"{schema_name}.{table_name}"
+
+        create_table_stmt = "CREATE TABLE {} (\n".format(full_table_name)
         for row in rows:
-            create_table_stmt += "{} {},\n".format(row[2], row[3])
+            create_table_stmt += "    {} {},\n".format(row[3], row[4])  # Use attribute name and type
         create_table_stmt = create_table_stmt.rstrip(",\n") + "\n);"
         return create_table_stmt
+
 
     def get_all_table_names(self):
         """
         Get all table names in the database
         """
         get_all_tables_stmt = (
-            "SELECT tablename FROM pg_tables WHERE schemaname = 'public';"
+            "SELECT tablename FROM pg_tables WHERE schemaname = 'atomic';"
         )
         self.cur.execute(get_all_tables_stmt)
         return [row[0] for row in self.cur.fetchall()]
