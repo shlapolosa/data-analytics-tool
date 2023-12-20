@@ -169,13 +169,13 @@ class PromptHandler:
         nlq_confidence = self._prompt_confidence()
         match nlq_confidence:
             case 1 | 2:
-                # Implement logic for confidence levels 1 and 2
-                pass
+                return InformationalPromptExecutor(self.prompt, self.agent_instruments, assistant_name)
             case 3 | 4 | 5:
-                # Implement logic for confidence levels 3, 4, and 5
-                pass
-        # This is a placeholder for the actual implementation.
-        pass
+                if not os.environ.get("OPENAI_API_KEY"):                                                                                                                                    
+                     return AutogenDataAnalystPromptExecutor(self.prompt, self.agent_instruments)                                                                                            
+                else:                                                                                                                                                                       
+                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, assistant_name, db)
+
 
     def _prompt_confidence(self) -> int:
         gate_orchestrator = agents.build_team_orchestrator(
