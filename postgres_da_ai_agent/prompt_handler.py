@@ -240,7 +240,7 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
 
 class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
     def __init__(self, prompt: str, agent_instruments, assistant_name: str, db: PostgresManager, nlq_confidence: int):
-        super().__init__(prompt, agent_instruments)
+        super().__init__(prompt, db, agent_instruments)
         self.assistant_name = assistant_name
         self.db = db
         self.nlq_confidence = nlq_confidence
