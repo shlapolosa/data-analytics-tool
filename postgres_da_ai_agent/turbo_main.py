@@ -1,7 +1,7 @@
 from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
 from postgres_da_ai_agent.modules import rand
 from postgres_da_ai_agent.modules import embeddings
-from prompt_handler import informational_prompt, data_analysis_prompt, invalid_response
+from postgres_da_ai_agent.prompt_handler import informational_prompt, data_analysis_prompt, invalid_response
 import argparse
 
 DB_URL = os.environ.get("DATABASE_URL")
