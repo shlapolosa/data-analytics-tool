@@ -141,8 +141,23 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
         super().__init__(prompt, agent_instruments)
 
     def execute(self):
-        # Implement the logic specific to AutogenDataAnalystPromptExecutor here.
-        pass
+        # ---------- Simple Prompt Solution - Same thing, only 2 api calls instead of 8+ ------------
+        tools = [
+            TurboTool("run_sql", run_sql_tool_config, self.agent_instruments.run_sql),
+        ]
+        sql_response = llm.prompt(
+            self.prompt,
+            model="gpt-4-1106-preview",
+            instructions="You're an elite SQL developer. You generate the most concise and performant SQL queries.",
+        )
+        llm.prompt_func(
+            "Use the run_sql function to run the SQL you've just generated: "
+            + sql_response,
+            model="gpt-4-1106-preview",
+            instructions="You're an elite SQL developer. You generate the most concise and performant SQL queries.",
+            turbo_tools=tools,
+        )
+        self.agent_instruments.validate_run_sql()
 
 class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
     def __init__(self, prompt: str, agent_instruments, assistant_name: str, db: PostgresManager):
