@@ -59,33 +59,8 @@ def main():
             case _:
                 invalid_prompt()
 
-        # ---------- Simple Prompt Solution - Same thing, only 2 api calls instead of 8+ ------------
-        assistant = Turbo4()
-        sql_response = llm.prompt(
-            prompt,
-            model="gpt-4-1106-preview",
-            instructions="You're an elite SQL developer. You generate the most concise and performant SQL queries.",
-        )
-        llm.prompt_func(
-            "Use the run_sql function to run the SQL you've just generated: "
-            + sql_response,
-            model="gpt-4-1106-preview",
-            instructions="You're an elite SQL developer. You generate the most concise and performant SQL queries.",
-            turbo_tools=tools,
-        )
-        agent_instruments.validate_run_sql()
-
-        # ----------- Example use case of Turbo4 and the Assistants API ------------
-
-        (
-            assistant.get_or_create_assistant(assistant_name)
-            .make_thread()
-            .equip_tools(tools)
-            .add_message("Generate 10 random facts about LLM technology.")
-            .run_thread()
-            .add_message("Use the store_fact function to 1 fact.")
-            .run_thread(toolbox=["store_fact"])
-        )
+        # Call the new function data_analyst_prompt_autogen
+        data_analyst_prompt_autogen(prompt, agent_instruments, assistant_name)
 
 
 if __name__ == "__main__":
