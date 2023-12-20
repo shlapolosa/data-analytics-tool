@@ -92,12 +92,13 @@ def prompt_confidence(prompt: str, agent_instruments) -> int:
     print("gate_orchestrator.last_message_str", gate_orchestrator.last_message_str)
 
     return int(gate_orchestrator.last_message_str)
-from postgres_da_ai_agent.agents.turbo4 import Turbo4
-from postgres_da_ai_agent.types import TurboTool
+
 
 def data_analyst_prompt_autogen(prompt: str, agent_instruments, assistant_name: str):
     # ---------- Simple Prompt Solution - Same thing, only 2 api calls instead of 8+ ------------
-    assistant = Turbo4()
+    tools = [
+        TurboTool("run_sql", run_sql_tool_config, agent_instruments.run_sql),
+    ]
     sql_response = llm.prompt(
         prompt,
         model="gpt-4-1106-preview",
@@ -108,18 +109,18 @@ def data_analyst_prompt_autogen(prompt: str, agent_instruments, assistant_name: 
         + sql_response,
         model="gpt-4-1106-preview",
         instructions="You're an elite SQL developer. You generate the most concise and performant SQL queries.",
-        turbo_tools=agent_instruments.turbo_tools,
+        turbo_tools=tools,
     )
     agent_instruments.validate_run_sql()
 
     # ----------- Example use case of Turbo4 and the Assistants API ------------
-
-    (
-        assistant.get_or_create_assistant(assistant_name)
-        .make_thread()
-        .equip_tools(agent_instruments.turbo_tools)
-        .add_message("Generate 10 random facts about LLM technology.")
-        .run_thread()
-        .add_message("Use the store_fact function to 1 fact.")
-        .run_thread(toolbox=["store_fact"])
-    )
+    # assistant = Turbo4()
+    # (
+    #     assistant.get_or_create_assistant(assistant_name)
+    #     .make_thread()
+    #     .equip_tools(tools)
+    #     .add_message("Generate 10 random facts about LLM technology.")
+    #     .run_thread()
+    #     .add_message("Use the store_fact function to 1 fact.")
+    #     .run_thread(toolbox=["store_fact"])
+    # )
