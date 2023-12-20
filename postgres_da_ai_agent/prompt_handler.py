@@ -141,6 +141,7 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
         super().__init__(prompt, agent_instruments)
 
     def execute(self):
+        print(f"✅ Gate Team Approved AUTOGEN")
         # ---------- Simple Prompt Solution - Same thing, only 2 api calls instead of 8+ ------------
         tools = [
             TurboTool("run_sql", run_sql_tool_config, self.agent_instruments.run_sql),
@@ -167,7 +168,7 @@ class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
         self.nlq_confidence = nlq_confidence
 
     def execute(self):
-        print(f"✅ Gate Team Approved - Valid confidence: {self.nlq_confidence}")
+        print(f"✅ Gate Team Approved OPEN API: {self.nlq_confidence}")
 
         database_embedder = embeddings.DatabaseEmbedder(self.db)
         table_definitions = database_embedder.get_similar_table_defs_for_prompt(self.prompt)
@@ -223,17 +224,16 @@ class PromptHandler:
             case 1 | 2:
                 return InformationalPromptExecutor(self.prompt, self.agent_instruments, "SQL_Analyst")
             case 3 | 4 | 5:
-                import os
                 from dotenv import load_dotenv
 
                 # Assuming the .env file is at the root of the project
                 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
                 load_dotenv(dotenv_path, verbose=True)
-
-                if not os.getenv("OPENAI_API_KEY"):                                                                                                                                    
-                     return AutogenDataAnalystPromptExecutor(self.prompt, self.agent_instruments)                                                                                            
+        
+                if os.getenv("USE_OPENAI_API"):                                                                                                                                    
+                    return AutogenDataAnalystPromptExecutor(self.prompt, self.agent_instruments)                                                                                            
                 else:                                                                                                                                                                       
-                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, nlq_confidence)
+                    return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, nlq_confidence)
 
 
     def _prompt_confidence(self) -> int:
