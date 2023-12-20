@@ -151,8 +151,43 @@ class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
         self.db = db
 
     def execute(self):
-        # Implement the logic specific to AssistantApiPromptExecutor here.
-        pass
+        print(f"✅ Gate Team Approved - Valid confidence: {self._prompt_confidence()}")
+
+        database_embedder = embeddings.DatabaseEmbedder(self.db)
+        table_definitions = database_embedder.get_similar_table_defs_for_prompt(self.prompt)
+
+        self.prompt = llm.add_cap_ref(
+            self.prompt,
+            f"Use these {POSTGRES_TABLE_DEFINITIONS_CAP_REF} to satisfy the database query.",
+            POSTGRES_TABLE_DEFINITIONS_CAP_REF,
+            table_definitions,
+        )
+
+        tools = [
+            TurboTool("run_sql", run_sql_tool_config, self.agent_instruments.run_sql),
+        ]
+
+        (
+            Turbo4().get_or_create_assistant(self.assistant_name)
+            .set_instructions(
+                "You're an elite SQL developer. You generate the most concise and performant SQL queries."
+            )
+            .equip_tools(tools)
+            .make_thread()
+            .add_message(self.prompt)
+            .run_thread()
+            .add_message(
+                "Use the run_sql function to run the SQL you've just generated.",
+            )
+            .run_thread(toolbox=[tools[0].name])
+            .run_validation(self.agent_instruments.validate_run_sql)
+            .spy_on_assistant(self.agent_instruments.make_agent_chat_file(self.assistant_name))
+            .get_costs_and_tokens(
+                self.agent_instruments.make_agent_cost_file(self.assistant_name)
+            )
+        )
+
+        print(f"✅ Turbo4 Assistant finished.")
 
 class PromptHandler:
     def __init__(self, prompt: str, agent_instruments):
