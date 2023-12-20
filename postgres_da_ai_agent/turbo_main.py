@@ -59,8 +59,8 @@ def main():
             case _:
                 invalid_prompt()
 
-        # Call the new function data_analyst_prompt_autogen
-        data_analyst_prompt_autogen(prompt, agent_instruments, assistant_name)
+        # alternatively Call the new function data_analyst_prompt_autogen
+        # data_analyst_prompt_autogen(prompt, agent_instruments, assistant_name)
 
 
 if __name__ == "__main__":
