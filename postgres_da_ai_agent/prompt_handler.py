@@ -169,3 +169,18 @@ class PromptHandler:
         # Implement the factory method logic to return an instance of PromptExecutor.
         # This is a placeholder for the actual implementation.
         pass
+
+    def prompt_confidence(self) -> int:
+        gate_orchestrator = agents.build_team_orchestrator(
+            "scrum_master",
+            self.agent_instruments,
+            validate_results=lambda: (True, ""),
+        )
+
+        gate_orchestrator: ConversationResult = (
+            gate_orchestrator.sequential_conversation(self.prompt)
+        )
+
+        print("gate_orchestrator.last_message_str", gate_orchestrator.last_message_str)
+
+        return int(gate_orchestrator.last_message_str)
