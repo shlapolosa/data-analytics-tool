@@ -126,24 +126,11 @@ class PromptExecutor:
 
     def execute(self):
         raise NotImplementedError("Subclasses should implement this!")
-
-class InformationalPromptExecutor(PromptExecutor):
-    def __init__(self, prompt: str, agent_instruments, assistant_name: str):
-        super().__init__(prompt, agent_instruments)
-        self.assistant_name = assistant_name
-
-    def execute(self):
-        # Implement the logic specific to InformationalPromptExecutor here.
-        pass
-
-class AutogenDataAnalystPromptExecutor(PromptExecutor):
-    def __init__(self, prompt: str,  db: PostgresManager, agent_instruments):
-        super().__init__(prompt, agent_instruments)
-        self.db = db
-
-    def execute(self):
-        print(f"✅ Gate Team Approved AUTOGEN")
-        # ---------- Simple Prompt Solution - Same thing, only 2 api calls instead of 8+ ------------
+    
+    def innovation_suggestions(self):
+        # ----------- Data Insights Team: Based on sql table definitions and a prompt generate novel insights -------------
+        innovation_prompt = f"Given this database query: '{self.prompt}'. Generate novel insights and new database queries to give business insights."
+        
         map_table_name_to_table_def = self.db.get_table_definition_map_for_embeddings()
 
         database_embedder = embeddings.DatabaseEmbedder(self.db)
@@ -153,10 +140,6 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
 
         similar_tables = database_embedder.get_similar_tables(self.prompt, n=5)
 
-        table_definitions = database_embedder.get_table_definitions_from_names(
-            similar_tables
-        )
-
         related_table_names = self.db.get_related_tables(similar_tables, n=3)
 
         core_and_related_table_definitions = (
@@ -165,50 +148,12 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
             )
         )
 
-        prompt = llm.add_cap_ref(
-            self.prompt,
-            f"Use these {POSTGRES_TABLE_DEFINITIONS_CAP_REF} to satisfy the database query.",
-            POSTGRES_TABLE_DEFINITIONS_CAP_REF,
-            table_definitions,
-        )
 
-        # ----------- Data Eng Team: Based on a sql table definitions and a prompt create an sql statement and execute it -------------
-
-        data_eng_orchestrator = agents.build_team_orchestrator(
-            "data_eng",
-            self.agent_instruments,
-            validate_results=self.agent_instruments.validate_run_sql,
-        )
-
-        data_eng_conversation_result: ConversationResult = (
-            data_eng_orchestrator.sequential_conversation(prompt)
-        )
-
-        match data_eng_conversation_result:
-            case ConversationResult(
-                success=True, cost=data_eng_cost, tokens=data_eng_tokens
-            ):
-                print(
-                    f"✅ Orchestrator was successful. Team: {data_eng_orchestrator.name}"
-                )
-                print(
-                    f"💰📊🤖 {data_eng_orchestrator.name} Cost: {data_eng_cost}, tokens: {data_eng_tokens}"
-                )
-                self.innovation_suggestions()
-            case _:
-                print(
-                    f"❌ Orchestrator failed. Team: {data_eng_orchestrator.name} Failed"
-                )
-        
-
-    def innovation_suggestions(self):
-        # ----------- Data Insights Team: Based on sql table definitions and a prompt generate novel insights -------------
-        innovation_prompt = f"Given this database query: '{self.prompt}'. Generate novel insights and new database queries to give business insights."
         insights_prompt = llm.add_cap_ref(
             innovation_prompt,
             f"Use these {POSTGRES_TABLE_DEFINITIONS_CAP_REF} to satisfy the database query.",
             POSTGRES_TABLE_DEFINITIONS_CAP_REF,
-            self.core_and_related_table_definitions,
+            core_and_related_table_definitions,
         )
 
         data_insights_orchestrator = agents.build_team_orchestrator(
@@ -273,6 +218,71 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
                 )
 
 
+class InformationalPromptExecutor(PromptExecutor):
+    def __init__(self, prompt: str, agent_instruments, assistant_name: str):
+        super().__init__(prompt, agent_instruments)
+        self.assistant_name = assistant_name
+
+    def execute(self):
+        # Implement the logic specific to InformationalPromptExecutor here.
+        pass
+
+class AutogenDataAnalystPromptExecutor(PromptExecutor):
+    def __init__(self, prompt: str,  db: PostgresManager, agent_instruments):
+        super().__init__(prompt, agent_instruments)
+        self.db = db
+
+    def execute(self):
+        print(f"✅ Gate Team Approved AUTOGEN")
+        # ---------- Simple Prompt Solution - Same thing, only 2 api calls instead of 8+ ------------
+        map_table_name_to_table_def = self.db.get_table_definition_map_for_embeddings()
+
+        database_embedder = embeddings.DatabaseEmbedder(self.db)
+
+        for name, table_def in map_table_name_to_table_def.items():
+            database_embedder.add_table(name, table_def)
+
+        similar_tables = database_embedder.get_similar_tables(self.prompt, n=5)
+
+        table_definitions = database_embedder.get_table_definitions_from_names(
+            similar_tables
+        )
+
+        prompt = llm.add_cap_ref(
+            self.prompt,
+            f"Use these {POSTGRES_TABLE_DEFINITIONS_CAP_REF} to satisfy the database query.",
+            POSTGRES_TABLE_DEFINITIONS_CAP_REF,
+            table_definitions,
+        )
+
+        # ----------- Data Eng Team: Based on a sql table definitions and a prompt create an sql statement and execute it -------------
+
+        data_eng_orchestrator = agents.build_team_orchestrator(
+            "data_eng",
+            self.agent_instruments,
+            validate_results=self.agent_instruments.validate_run_sql,
+        )
+
+        data_eng_conversation_result: ConversationResult = (
+            data_eng_orchestrator.sequential_conversation(prompt)
+        )
+
+        match data_eng_conversation_result:
+            case ConversationResult(
+                success=True, cost=data_eng_cost, tokens=data_eng_tokens
+            ):
+                print(
+                    f"✅ Orchestrator was successful. Team: {data_eng_orchestrator.name}"
+                )
+                print(
+                    f"💰📊🤖 {data_eng_orchestrator.name} Cost: {data_eng_cost}, tokens: {data_eng_tokens}"
+                )
+                self.innovation_suggestions()
+            case _:
+                print(
+                    f"❌ Orchestrator failed. Team: {data_eng_orchestrator.name} Failed"
+                )
+
 class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
     def __init__(self, prompt: str, agent_instruments, assistant_name: str, db: PostgresManager, nlq_confidence: int):
         super().__init__(prompt, db, agent_instruments)
@@ -318,6 +328,7 @@ class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
         )
 
         print(f"✅ Turbo4 Assistant finished.")
+        self.innovation_suggestions()
 
 class PromptHandler:
     def __init__(self, prompt: str, agent_instruments, db: PostgresManager):
@@ -343,7 +354,7 @@ class PromptHandler:
                 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
                 load_dotenv(dotenv_path, verbose=True)
                 print("OPENAI_API_KEY "+os.getenv("OPENAI_API_KEY"))
-                if True:                                                                                                                        
+                if len(os.getenv("OPENAI_API_KEY")) < 1:                                                                                                                        
                     return AutogenDataAnalystPromptExecutor(self.prompt, db, self.agent_instruments)                                                                                            
                 else:                                                                                                                                                                       
                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, nlq_confidence)
