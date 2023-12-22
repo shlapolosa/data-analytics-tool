@@ -183,39 +183,39 @@ class PromptExecutor:
                     f"❌ Orchestrator failed. Team: {data_insights_orchestrator.name} Failed"
                 )
 
-        insights_prompt = llm.add_cap_ref(
-            innovation_prompt,
-            f"Use these {POSTGRES_TABLE_DEFINITIONS_CAP_REF} to satisfy the database query.",
-            POSTGRES_TABLE_DEFINITIONS_CAP_REF,
-            core_and_related_table_definitions,
-        )
+        # insights_prompt = llm.add_cap_ref(
+        #     innovation_prompt,
+        #     f"Use these {POSTGRES_TABLE_DEFINITIONS_CAP_REF} to satisfy the database query.",
+        #     POSTGRES_TABLE_DEFINITIONS_CAP_REF,
+        #     core_and_related_table_definitions,
+        # )
 
-        data_insights_orchestrator = agents.build_team_orchestrator(
-            "data_insights",
-            self.agent_instruments,
-            validate_results=self.agent_instruments.validate_innovation_files,
-        )
+        # data_insights_orchestrator = agents.build_team_orchestrator(
+        #     "data_insights",
+        #     self.agent_instruments,
+        #     validate_results=self.agent_instruments.validate_innovation_files,
+        # )
 
-        data_insights_conversation_result: ConversationResult = (
-            data_insights_orchestrator.round_robin_conversation(
-                insights_prompt, loops=1
-            )
-        )
+        # data_insights_conversation_result: ConversationResult = (
+        #     data_insights_orchestrator.round_robin_conversation(
+        #         insights_prompt, loops=1
+        #     )
+        # )
 
-        match data_insights_conversation_result:
-            case ConversationResult(
-                success=True, cost=data_insights_cost, tokens=data_insights_tokens
-            ):
-                print(
-                    f"✅ Orchestrator was successful. Team: {data_insights_orchestrator.name}"
-                )
-                print(
-                    f"💰📊🤖 {data_insights_orchestrator.name} Cost: {data_insights_cost}, tokens: {data_insights_tokens}"
-                )
-            case _:
-                print(
-                    f"❌ Orchestrator failed. Team: {data_insights_orchestrator.name} Failed"
-                )
+        # match data_insights_conversation_result:
+        #     case ConversationResult(
+        #         success=True, cost=data_insights_cost, tokens=data_insights_tokens
+        #     ):
+        #         print(
+        #             f"✅ Orchestrator was successful. Team: {data_insights_orchestrator.name}"
+        #         )
+        #         print(
+        #             f"💰📊🤖 {data_insights_orchestrator.name} Cost: {data_insights_cost}, tokens: {data_insights_tokens}"
+        #         )
+        #     case _:
+        #         print(
+        #             f"❌ Orchestrator failed. Team: {data_insights_orchestrator.name} Failed"
+        #         )
 
 
 class InformationalPromptExecutor(PromptExecutor):
