@@ -50,7 +50,7 @@ def main():
 
     with PostgresAgentInstruments(DB_URL, session_id) as (agent_instruments, db):
         with PromptHandler(raw_prompt, agent_instruments, db) as executor:
-            executor.execute()
+            return executor.execute()
 
 
 if __name__ == "__main__":

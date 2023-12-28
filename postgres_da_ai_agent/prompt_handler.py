@@ -117,6 +117,7 @@ class PromptExecutor:
     def __init__(self, prompt: str, agent_instruments):
         self.prompt = prompt
         self.agent_instruments = agent_instruments
+        self.conversation_result = ConversationResult(success=True,messages=[],cost=0.0,tokens=0,last_message_str="",error_message="",suggestions=[])
 
     def __enter__(self):
         return self.assess_prompt(self.db)
@@ -124,10 +125,10 @@ class PromptExecutor:
     def __exit__(self, exc_type, exc_value, traceback):
         pass
 
-    def execute(self):
+    def execute(self) -> ConversationResult:
         raise NotImplementedError("Subclasses should implement this!")
     
-    def innovation_suggestions(self):
+    def innovation_suggestions(self)-> ConversationResult:
         # ----------- Data Insights Team: Based on sql table definitions and a prompt generate novel insights -------------
         innovation_prompt = f"Given this database query: '{self.prompt}'. Generate novel insights and new database queries to give business insights."
         
@@ -182,7 +183,7 @@ class PromptExecutor:
                 print(
                     f"❌ Orchestrator failed. Team: {data_insights_orchestrator.name} Failed"
                 )
-
+        return data_insights_conversation_result
         # insights_prompt = llm.add_cap_ref(
         #     innovation_prompt,
         #     f"Use these {POSTGRES_TABLE_DEFINITIONS_CAP_REF} to satisfy the database query.",
@@ -223,7 +224,7 @@ class InformationalPromptExecutor(PromptExecutor):
         super().__init__(prompt, agent_instruments)
         self.assistant_name = assistant_name
 
-    def execute(self):
+    def execute(self)-> ConversationResult:
         # Implement the logic specific to InformationalPromptExecutor here.
         pass
 
@@ -232,7 +233,7 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
         super().__init__(prompt, agent_instruments)
         self.db = db
 
-    def execute(self):
+    def execute(self)-> ConversationResult:
         print(f"✅ Gate Team Approved AUTOGEN")
         # ---------- Simple Prompt Solution - Same thing, only 2 api calls instead of 8+ ------------
         map_table_name_to_table_def = self.db.get_table_definition_map_for_embeddings()
@@ -277,11 +278,24 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
                 print(
                     f"💰📊🤖 {data_eng_orchestrator.name} Cost: {data_eng_cost}, tokens: {data_eng_tokens}"
                 )
-                self.innovation_suggestions()
+                
+                self.conversation_result = data_eng_conversation_result
+                print(
+                    f"Initial conversation results: {self.conversation_result}"
+                )
+                conv_res = self.innovation_suggestions()
+                print(
+                    f"Innovation results: {conv_res}"
+                )
+                self.conversation_result.suggestions = conv_res.messages
+                print(
+                    f"Total results: {conv_res}"
+                )
             case _:
                 print(
                     f"❌ Orchestrator failed. Team: {data_eng_orchestrator.name} Failed"
                 )
+        return self.conversation_result
 
 class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
     def __init__(self, prompt: str, agent_instruments, assistant_name: str, db: PostgresManager, nlq_confidence: int):
@@ -290,7 +304,7 @@ class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
         self.db = db
         self.nlq_confidence = nlq_confidence
 
-    def execute(self):
+    def execute(self) -> ConversationResult:
         print(f"✅ Gate Team Approved OPEN API: {self.nlq_confidence}")
 
         database_embedder = embeddings.DatabaseEmbedder(self.db)
@@ -328,7 +342,9 @@ class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
         )
 
         print(f"✅ Turbo4 Assistant finished.")
-        self.innovation_suggestions()
+        conv_res = self.innovation_suggestions()
+        self.conversation_result.suggestions = conv_res.messages
+        return self.conversation_result
 
 class PromptHandler:
     def __init__(self, prompt: str, agent_instruments, db: PostgresManager):
@@ -354,7 +370,7 @@ class PromptHandler:
                 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
                 load_dotenv(dotenv_path, verbose=True)
                 print("OPENAI_API_KEY "+os.getenv("OPENAI_API_KEY"))
-                if len(os.getenv("OPENAI_API_KEY")) < 1:                                                                                                                        
+                if len(os.getenv("OPENAI_API_KEY")) > 1:                                                                                                                        
                     return AutogenDataAnalystPromptExecutor(self.prompt, db, self.agent_instruments)                                                                                            
                 else:                                                                                                                                                                       
                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, nlq_confidence)

@@ -20,6 +20,7 @@ class ConversationResult:
     tokens: int
     last_message_str: str
     error_message: str
+    suggestions: List[str] = field(default_factory=list)
 
 
 @dataclass
