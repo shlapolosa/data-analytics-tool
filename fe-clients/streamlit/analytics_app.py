@@ -51,7 +51,6 @@ def display_assistant_response(full_response, the_thing):
                         on_click=lambda: setattr(st.session_state, 'download_triggered', True),
                         key="download_the_thing_outside"
                     )
-                    
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
