@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title='AI Data Assistant', layout='wide', initial_sidebar_state='expanded')
+st.set_page_config(page_title='AI Data Assistant', layout='wide', initial_sidebar_state='auto')
 
 st.title('AI assistant')
 st.header('Data analysis')
