@@ -86,6 +86,7 @@ st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_ht
 
 
 
+
 def display_assistant_response(full_response, the_thing):
     with st.chat_message("assistant"):
         with st.spinner("Processing..."):
@@ -111,4 +112,3 @@ def display_assistant_response(full_response, the_thing):
                         on_click=lambda: setattr(st.session_state, 'download_triggered', True),
                         key="download_the_thing_outside"
                     )
-
