@@ -26,7 +26,32 @@ def chat_response(prompt):
     the_thing = np.random.randn(30, 3) if random.randint(1, 10) % 2 else None
     return full_response, the_thing
 
-
+def display_assistant_response(full_response, the_thing):
+    with st.chat_message("assistant"):
+        with st.spinner("Processing..."):
+            # Create tabs for Response and Artifact
+            tab1, tab2 = st.tabs(["Response", "Artifact"])
+            # Set the value of full_response to the Response tab
+            with tab1:             
+                st.markdown(full_response)
+            # Set the value of the_thing to the Artifact tab
+            with tab2:
+                if the_thing is not None:
+                    st.bar_chart(the_thing)
+                    img = Image.fromarray(the_thing, 'RGB')
+                    # Convert the numpy array to a file and create a download button
+                    the_thing_bytes = io.BytesIO()
+                    np.save(the_thing_bytes, the_thing, allow_pickle=False)
+                    the_thing_bytes.seek(0)
+                    download_button = st.download_button(
+                        label="Download the_thing",
+                        data=the_thing_bytes,
+                        file_name="the_thing.npy",
+                        mime="application/octet-stream",
+                        on_click=lambda: setattr(st.session_state, 'download_triggered', True),
+                        key="download_the_thing_outside"
+                    )
+                    
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -82,33 +107,3 @@ if st.sidebar.button('Configure Assistant'):
 st.sidebar.markdown("---")
 st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_html=True)
 
-
-
-
-
-
-def display_assistant_response(full_response, the_thing):
-    with st.chat_message("assistant"):
-        with st.spinner("Processing..."):
-            # Create tabs for Response and Artifact
-            tab1, tab2 = st.tabs(["Response", "Artifact"])
-            # Set the value of full_response to the Response tab
-            with tab1:             
-                st.markdown(full_response)
-            # Set the value of the_thing to the Artifact tab
-            with tab2:
-                if the_thing is not None:
-                    st.bar_chart(the_thing)
-                    img = Image.fromarray(the_thing, 'RGB')
-                    # Convert the numpy array to a file and create a download button
-                    the_thing_bytes = io.BytesIO()
-                    np.save(the_thing_bytes, the_thing, allow_pickle=False)
-                    the_thing_bytes.seek(0)
-                    download_button = st.download_button(
-                        label="Download the_thing",
-                        data=the_thing_bytes,
-                        file_name="the_thing.npy",
-                        mime="application/octet-stream",
-                        on_click=lambda: setattr(st.session_state, 'download_triggered', True),
-                        key="download_the_thing_outside"
-                    )
