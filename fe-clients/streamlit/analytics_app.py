@@ -12,8 +12,9 @@ st.sidebar.markdown("This assistant helps to navigate and answer questions you m
 run_mode_expander = st.sidebar.expander("Run mode")
 run_mode = run_mode_expander.radio(
     label="Choose the run mode:",
-    options=("AssistantAPI", "Autogen", "CrewAI")
-)
+    options=("AssistantAPI", "Autogen", "CrewAI"))
+assistant_name = st.sidebar.text_input('Name', key='assistant_name')
+uploaded_file = st.sidebar.file_uploader('Knowledge', type=['pdf', 'csv', 'txt'], key='knowledge_uploader')
     assistant_name = st.sidebar.text_input('Name')
     uploaded_file = st.sidebar.file_uploader(
         'Knowledge',
