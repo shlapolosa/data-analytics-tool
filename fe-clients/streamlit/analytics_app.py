@@ -2,10 +2,14 @@ import streamlit as st
 import io
 import random
 import time
-import sys
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'postgres_da_ai_agent'))
 import os
 import numpy as np
 from PIL import Image
+from modules import rand
+from agents.instruments import PostgresAgentInstruments
+from prompt_handler import PromptHandler
 sys.path.append('../../postgres_da_ai_agent/')  # Adjust this path as necessary
 from postgres_da_ai_agent.modules import rand
 from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
