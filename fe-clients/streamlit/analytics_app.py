@@ -2,6 +2,8 @@ import streamlit as st
 import io
 import random
 import time
+import sys
+sys.path.append('/Users/socrates/Development/data-analytics-tool')  # Adjust this path as necessary
 import numpy as np
 from PIL import Image
 from postgres_da_ai_agent.modules import rand
