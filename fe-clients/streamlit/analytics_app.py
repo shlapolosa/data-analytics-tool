@@ -15,3 +15,4 @@ run_mode = run_mode_expander.radio(
 )
 st.sidebar.markdown("---")
 st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_html=True)
+st.button('Let\'s get started')
