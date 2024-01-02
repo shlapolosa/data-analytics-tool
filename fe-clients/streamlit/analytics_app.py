@@ -50,9 +50,35 @@ if prompt := st.chat_input("What is up?"):
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
         with st.spinner("Processing..."):
-            message_placeholder = st.empty()
-            full_response,the_thing = chat_response(prompt)
-            message_placeholder.markdown(full_response)
+            # Create tabs for Response and Artifact
+            tab1, tab2 = st.tabs(["Response", "Artifact"])
+            # Set the value of full_response to the Response tab
+            with tab1:
+                full_response, the_thing = chat_response(prompt)
+                st.markdown(full_response)
+            # Set the value of the_thing to the Artifact tab
+            with tab2:
+                if the_thing is not None:
+                    st.bar_chart(the_thing)
+                    img = Image.fromarray(the_thing, 'RGB')
+                    # Convert the numpy array to a file and create a download button
+                    the_thing_bytes = io.BytesIO()
+                    np.save(the_thing_bytes, the_thing, allow_pickle=False)
+                    the_thing_bytes.seek(0)
+                    # Use Streamlit's session state to prevent rerun from affecting the chat history
+                    if 'download_triggered' not in st.session_state:
+                        st.session_state.download_triggered = False
+                    download_button = st.download_button(
+                        label="Download the_thing",
+                        data=the_thing_bytes,
+                        file_name="the_thing.npy",
+                        mime="application/octet-stream",
+                        on_click=lambda: setattr(st.session_state, 'download_triggered', True)
+                    )
+                    if st.session_state.download_triggered:
+                        # Reset the flag to prevent the download action from affecting the chat history
+                        st.session_state.download_triggered = False
+                        st.bar_chart(the_thing)
             if the_thing is not None:
                 st.bar_chart(the_thing)
                 img = Image.fromarray(the_thing, 'RGB')
