@@ -14,31 +14,33 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # Accept user input
-def chat_response(prompt):
+if prompt := st.chat_input("What is up?"):
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     # Display user message in chat message container
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Generate and display assistant response
-    assistant_response = generate_assistant_response(prompt)
+    # Display assistant response in chat message container
     with st.chat_message("assistant"):
-        st.markdown(assistant_response)
+        message_placeholder = st.empty()
+        full_response = ""
+        assistant_response = random.choice(
+            [
+                "Hello there! How can I assist you today?",
+                "Hi, human! Is there anything I can help you with?",
+                "Do you need help?",
+            ]
+        )
+        # Simulate stream of response with milliseconds delay
+        for chunk in assistant_response.split():
+            full_response += chunk + " "
+            time.sleep(0.05)
+            # Add a blinking cursor to simulate typing
+            message_placeholder.markdown(full_response + "▌")
+        message_placeholder.markdown(full_response)
     # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": assistant_response})
-
-def generate_assistant_response(user_input):
-    # Simulate a response for demonstration purposes
-    responses = [
-        "Hello there! How can I assist you today?",
-        "Hi, human! Is there anything I can help you with?",
-        "Do you need help?",
-    ]
-    return random.choice(responses)
-
-if prompt := st.chat_input("What is up?"):
-    chat_response(prompt)
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 
 st.sidebar.markdown('**Marketing insights and Reporting**')
