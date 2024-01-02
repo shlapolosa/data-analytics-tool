@@ -3,13 +3,14 @@ import io
 import random
 import time
 import sys
-sys.path.append('/Users/socrates/Development/data-analytics-tool')  # Adjust this path as necessary
+import os
 import numpy as np
 from PIL import Image
+sys.path.append('../../postgres_da_ai_agent/')  # Adjust this path as necessary
 from postgres_da_ai_agent.modules import rand
 from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
 from postgres_da_ai_agent.prompt_handler import PromptHandler
-import os
+
 
 
 DB_URL = os.environ.get("DATABASE_URL")
