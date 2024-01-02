@@ -49,7 +49,7 @@ if prompt := st.chat_input("What is up?"):
             if the_thing is not None:
                 st.bar_chart(the_thing)
                 img = Image.fromarray(the_thing, 'RGB')
-                img.show()
+                # img.show()
                 # Convert the numpy array to a file and create a download button
                 the_thing_bytes = io.BytesIO()
                 np.save(the_thing_bytes, the_thing, allow_pickle=False)
