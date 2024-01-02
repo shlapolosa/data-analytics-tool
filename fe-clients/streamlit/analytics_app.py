@@ -1,4 +1,5 @@
 import streamlit as st
+import io
 import random
 import time
 import numpy as np
