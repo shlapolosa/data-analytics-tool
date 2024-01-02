@@ -48,7 +48,7 @@ if prompt := st.chat_input("What is up?"):
     full_response, the_thing = chat_response(prompt)
 
     # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
+    st.session_state.messages.append({"role": "assistant", "content": full_response, "artifact": the_thing})
 
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
@@ -77,8 +77,6 @@ if prompt := st.chat_input("What is up?"):
                         key="download_the_thing_outside"
                     )
 
-    # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 
 st.sidebar.markdown('**Marketing insights and Reporting**')
