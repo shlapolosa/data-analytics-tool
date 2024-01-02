@@ -1,10 +1,12 @@
 import streamlit as st
 import random
 import time
+import numpy as np
+from PIL import Image
 
 st.title("Ask a question")
 
-async def chat_response(prompt):
+def chat_response(prompt):
     full_response = ""
     assistant_response = random.choice(
             [
@@ -16,8 +18,9 @@ async def chat_response(prompt):
     # Simulate stream of response with milliseconds delay
     for chunk in assistant_response.split():
         full_response += chunk + " "
-        time.sleep(0.05)
-    return full_response
+        time.sleep(0.3)
+    the_thing = np.random.randn(30, 3) if random.randint(1, 10) % 2 else None
+    return full_response, the_thing
 
 
 # Initialize chat history
@@ -39,9 +42,15 @@ if prompt := st.chat_input("What is up?"):
 
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        full_response = st.snow(chat_response, prompt)
-        message_placeholder.markdown(full_response)
+        with st.spinner("Processing..."):
+            message_placeholder = st.empty()
+            full_response,the_thing = chat_response(prompt)
+            message_placeholder.markdown(full_response)
+            if the_thing is not None:
+                st.bar_chart(the_thing)
+                img = Image.fromarray(the_thing, 'RGB')
+                img.show()
+            
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response})
 
