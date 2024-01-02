@@ -18,6 +18,13 @@ with st.container() as border1:
     for role in selected_roles:
         st.sidebar.markdown(f"<p align='center'>{role}</p>", unsafe_allow_html=True)
 
+conversation = st.empty()  # Placeholder for the conversation
+user_input = st.text_input("Type your message here...", key="chat_prompt")
+if user_input:
+    conversation.write(f"You: {user_input}")
+    # Here you would typically handle the user input, call the assistant API or process the input locally,
+    # and then update the conversation placeholder with the assistant's response.
+
 if st.sidebar.button('Configure Assistant'):
     assistant_name = st.sidebar.text_input('Name')
     uploaded_file = st.sidebar.file_uploader(
