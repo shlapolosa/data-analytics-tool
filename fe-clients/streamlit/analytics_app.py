@@ -68,17 +68,24 @@ if prompt := st.chat_input("What is up?"):
                     # Use Streamlit's session state to prevent rerun from affecting the chat history
                     if 'download_triggered' not in st.session_state:
                         st.session_state.download_triggered = False
+            with tab2:
+                if the_thing is not None:
+                    st.bar_chart(the_thing)
                     download_button = st.download_button(
                         label="Download the_thing",
                         data=the_thing_bytes,
                         file_name="the_thing.npy",
                         mime="application/octet-stream",
-                        on_click=lambda: setattr(st.session_state, 'download_triggered', True)
+                        on_click=lambda: setattr(st.session_state, 'download_triggered', True),
+                        key="download_the_thing_tab2"
                     )
                     if st.session_state.download_triggered:
                         # Reset the flag to prevent the download action from affecting the chat history
                         st.session_state.download_triggered = False
                         st.bar_chart(the_thing)
+                if st.session_state.download_triggered:
+                    st.session_state.download_triggered = False
+                    st.bar_chart(the_thing)
             if the_thing is not None:
                 st.bar_chart(the_thing)
                 img = Image.fromarray(the_thing, 'RGB')
@@ -95,7 +102,8 @@ if prompt := st.chat_input("What is up?"):
                     data=the_thing_bytes,
                     file_name="the_thing.npy",
                     mime="application/octet-stream",
-                    on_click=lambda: setattr(st.session_state, 'download_triggered', True)
+                    on_click=lambda: setattr(st.session_state, 'download_triggered', True),
+                    key="download_the_thing_outside"
                 )
                 if st.session_state.download_triggered:
                     # Reset the flag to prevent the download action from affecting the chat history
