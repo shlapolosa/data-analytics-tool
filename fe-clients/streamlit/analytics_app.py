@@ -18,20 +18,12 @@ with st.container() as border1:
     for role in selected_roles:
         st.sidebar.markdown(f"<p align='center'>{role}</p>", unsafe_allow_html=True)
 
-messages = []
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = []
-
-user_input = st.text_input("Type your message here...", key="chat_prompt", on_change=lambda: messages.append({'body': user_input, 'is_user': True, 'avatar_style': 'text'}))
-
+conversation = st.empty()  # Placeholder for the conversation
+user_input = st.text_input("Type your message here...", key="chat_prompt")
 if user_input:
-    # Simulate a response for demonstration purposes
-    assistant_response = f"Assistant's response to: {user_input}"
-    messages.append({'body': assistant_response, 'is_user': False, 'avatar_style': 'text'})
-    st.session_state.chat_history.extend(messages)
-    messages.clear()
-
-st.chat(messages=st.session_state.chat_history)
+    conversation.write(f"You: {user_input}")
+    # Here you would typically handle the user input, call the assistant API or process the input locally,
+    # and then update the conversation placeholder with the assistant's response.
 
 if st.sidebar.button('Configure Assistant'):
     assistant_name = st.sidebar.text_input('Name')
