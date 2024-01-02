@@ -3,10 +3,9 @@ import io
 import random
 import time
 # sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'postgres_da_ai_agent'))
-import sys
+import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 # sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'postgres_da_ai_agent'))
-import os
 import numpy as np
 from PIL import Image
 from postgres_da_ai_agent.modules import rand
@@ -23,11 +22,12 @@ if 'download_triggered' not in st.session_state:
     st.session_state.download_triggered = False
 
 def prompt_response(raw_prompt):
+    print(f"running prompt_response")
     # Logic to generate a response string and object based on the prompt
     response_string = "This is a placeholder response."
     response_object = None
-    
-    prompt = f"Fulfill this database query: {raw_prompt}. "
+            
+    # prompt = f"Fulfill this database query: {raw_prompt}. "
 
     assistant_name = "Turbo4"
 
@@ -35,10 +35,13 @@ def prompt_response(raw_prompt):
 
     response = None
     with PostgresAgentInstruments(DB_URL, session_id) as (agent_instruments, db):
-        with PromptHandler(prompt, agent_instruments, db) as executor:
+        with PromptHandler(raw_prompt, agent_instruments, db) as executor:
             response = executor.execute()
-    response_string = f"{response.last_message_str}\n Tokens: {response.tokens}\ln Suggestion: {response.suggestions}"
-    response_object = np.random.randn(30, 3) if random.randint(1, 10) % 2 else None
+            response_string = f"""
+                Message: {response.last_message_str}
+                Tokens: {response.tokens}
+                Suggestion: {response.suggestions}"""
+            response_object = np.random.randn(30, 3) if random.randint(1, 10) % 2 else None
     return response_string, response_object
 
 def chat_response(prompt):
@@ -58,40 +61,40 @@ def chat_response(prompt):
     return full_response, the_thing
 
 def display_assistant_response(full_response, the_thing):
-    with st.chat_message("assistant"):
-        with st.spinner("Processing..."):
-            # Create tabs for Response and Artifact
-            tab1, tab2 = st.tabs(["Response", "Artifact"])
-            # Set the value of full_response to the Response tab
-            with tab1:             
-                st.markdown(full_response)
-            # Set the value of the_thing to the Artifact tab
-            with tab2:
-                if the_thing is not None:
-                    st.bar_chart(the_thing)
-                    img = Image.fromarray(the_thing, 'RGB')
-                    # Convert the numpy array to a file and create a download button
-                    the_thing_bytes = io.BytesIO()
-                    np.save(the_thing_bytes, the_thing, allow_pickle=False)
-                    the_thing_bytes.seek(0)
-                    download_button = st.download_button(
-                        label="Download the_thing",
-                        data=the_thing_bytes,
-                        file_name="the_thing.npy",
-                        mime="application/octet-stream",
-                        on_click=lambda: setattr(st.session_state, 'download_triggered', True),
-                        key="download_the_thing_outside"
-                    )
+    # Create tabs for Response and Artifact
+    tab1, tab2 = st.tabs(["Response", "Artifact"])
+    # Set the value of full_response to the Response tab
+    with tab1:             
+        st.markdown(full_response, unsafe_allow_html=True)
+        # Set the value of the_thing to the Artifact tab
+        with tab2:
+            if the_thing is not None:
+                st.bar_chart(the_thing)
+                img = Image.fromarray(the_thing, 'RGB')
+                # Convert the numpy array to a file and create a download button
+                the_thing_bytes = io.BytesIO()
+                np.save(the_thing_bytes, the_thing, allow_pickle=False)
+                the_thing_bytes.seek(0)
+                download_button = st.download_button(
+                    label="Download the_thing",
+                    data=the_thing_bytes,
+                    file_name="the_thing.npy",
+                    mime="application/octet-stream",
+                    on_click=lambda: setattr(st.session_state, 'download_triggered', True),
+                    key="download_the_thing_outside"
+                )
+
+
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
-    if message["role"] == "assistant":
-        display_assistant_response(message["content"], message.get("artifact"))
-    else:
-        with st.chat_message(message["role"]):
+    with st.chat_message(message["role"]):
+        if message["role"] == "assistant":
+            display_assistant_response(message["content"], message.get("artifact"))
+        else:
             st.markdown(message["content"])
 
 # Accept user input
@@ -102,14 +105,16 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Generate assistant response and potentially a numpy array
-    full_response, the_thing = prompt_response(prompt)
+    with st.chat_message("assistant"):
+        with st.spinner("Processing..."):
+            # Generate assistant response and potentially a numpy array
+            full_response, the_thing = prompt_response(prompt)
 
-    # Add assistant response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": full_response, "artifact": the_thing})
+            # Add assistant response to chat history
+            st.session_state.messages.append({"role": "assistant", "content": full_response, "artifact": the_thing})
 
-    # Display assistant response in chat message container
-    display_assistant_response(full_response, the_thing)
+            # Display assistant response in chat message container
+            display_assistant_response(full_response, the_thing)
 
 
 

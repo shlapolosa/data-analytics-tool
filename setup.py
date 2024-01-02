@@ -17,7 +17,7 @@ setup(
         # 'sympy', # if you are using sympy in your project
         # Add other dependencies as needed
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.10',
     entry_points={
         'console_scripts': [
             # If you have any scripts you want to be installed with your package, add them here

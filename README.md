@@ -38,6 +38,17 @@ It's the first of many multi-agent applications that utilize LLMs (large languag
 - Run a prompt against your database
   - `poetry run start --prompt "<ask your agent a question about your postgres database>"`
     - Start with something simple to get a feel for it and then build up to more complex questions.
+    
+## 🚀 Running the Streamlit Client 🚀
+To run the Streamlit client located in `fe-clients/streamlit/analytics_app.py`, follow these steps:
+
+1. Navigate to the `fe-clients/streamlit` directory in your terminal.
+2. Run the command `streamlit run analytics_app.py`.
+3. The Streamlit application will start, and your default web browser should open automatically to the app's URL, typically `http://localhost:8501`.
+4. Interact with the application through the web interface.
+
+Make sure you have Streamlit installed in your Python environment. If not, you can install it using `pip install streamlit`.
+
 
 ## 🛠️ Core Tech Stack 🛠️
 - [OpenAI](https://openai.com/) - GPT-4, GPT-4 Turbo, Assistance API
@@ -138,18 +149,6 @@ Talk To Your Database: [https://talktoyourdb.com](https://talktoyourdatabase.com
 <img src="imgs/10-talk-to-your-database.png" width="300" height="auto">
 
 ---
-
-# 🧠 Major Learnings Throughout the Series 🧠
-
-## 🚀 Running the Streamlit Client 🚀
-To run the Streamlit client located in `fe-clients/streamlit/analytics_app.py`, follow these steps:
-
-1. Navigate to the `fe-clients/streamlit` directory in your terminal.
-2. Run the command `streamlit run analytics_app.py`.
-3. The Streamlit application will start, and your default web browser should open automatically to the app's URL, typically `http://localhost:8501`.
-4. Interact with the application through the web interface.
-
-Make sure you have Streamlit installed in your Python environment. If not, you can install it using `pip install streamlit`.
 
 ## 💡 Why are multi-agent applications important?
 - They're important because they allows us to create a more accurate model of the world.

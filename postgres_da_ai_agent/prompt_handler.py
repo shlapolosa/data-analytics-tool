@@ -406,3 +406,4 @@ class PromptHandler:
         print("gate_orchestrator.last_message_str", gate_orchestrator.last_message_str)
 
         return int(gate_orchestrator.last_message_str)
+        # return 5
