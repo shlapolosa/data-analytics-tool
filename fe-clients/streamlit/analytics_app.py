@@ -15,6 +15,10 @@ run_mode = run_mode_expander.radio(
     options=("AssistantAPI", "Autogen", "CrewAI")
 )
 with st.container() as border1:
+    st.markdown(
+        "<style>.stContainer { border: 2px solid #4CAF50; border-radius: 5px; padding: 10px; }</style>",
+        unsafe_allow_html=True,
+    )
     roles = {
         "AssistantAPI": ["Turbo4", "Informational"],
         "Autogen": ["Admin", "Engineer", "Data Analyst", "Scrum Master", "Insights Reporter"],
