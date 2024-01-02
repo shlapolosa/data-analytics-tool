@@ -2,7 +2,9 @@ import streamlit as st
 import io
 import random
 import time
-import sys, os
+# sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'postgres_da_ai_agent'))
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 # sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'postgres_da_ai_agent'))
 import os
 import numpy as np
