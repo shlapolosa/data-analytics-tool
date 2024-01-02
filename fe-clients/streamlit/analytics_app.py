@@ -23,7 +23,7 @@ with st.container() as border1:
 
     selected_roles = roles.get(run_mode, [])
     for role in selected_roles:
-        st.sidebar.write(role)
+        st.sidebar.markdown(f"<p align='center'>{role}</p>", unsafe_allow_html=True)
 
 if st.sidebar.button('Configure Assistant'):
     assistant_name = st.sidebar.text_input('Name')
