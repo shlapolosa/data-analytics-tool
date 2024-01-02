@@ -14,7 +14,9 @@ run_mode = run_mode_expander.radio(
     label="Choose the run mode:",
     options=("AssistantAPI", "Autogen", "CrewAI")
 )
-if st.sidebar.button('Configure Assistant'):
+configure_assistant_expander = st.sidebar.expander('Configure Assistant')
+with configure_assistant_expander:
+    assistant_name = st.sidebar.text_input('Name', key='assistant_name')
     assistant_name = st.sidebar.text_input('Name')
     uploaded_file = st.sidebar.file_uploader(
         'Knowledge',
