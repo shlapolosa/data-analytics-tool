@@ -5,7 +5,7 @@ import time
 import numpy as np
 from PIL import Image
 from .agents.instruments import PostgresAgentInstruments
-from postgres_da_ai_agent.prompt_handler import PromptHandler
+from .prompt_handler import PromptHandler
 import os
 
 
