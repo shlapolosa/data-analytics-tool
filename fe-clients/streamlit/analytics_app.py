@@ -50,6 +50,16 @@ if prompt := st.chat_input("What is up?"):
                 st.bar_chart(the_thing)
                 img = Image.fromarray(the_thing, 'RGB')
                 img.show()
+                # Convert the numpy array to a file and create a download button
+                the_thing_bytes = io.BytesIO()
+                np.save(the_thing_bytes, the_thing, allow_pickle=False)
+                the_thing_bytes.seek(0)
+                st.download_button(
+                    label="Download the_thing",
+                    data=the_thing_bytes,
+                    file_name="the_thing.npy",
+                    mime="application/octet-stream"
+                )
             
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response})
