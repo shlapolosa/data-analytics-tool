@@ -4,6 +4,22 @@ import time
 
 st.title("Ask a question")
 
+async def chat_response(prompt):
+    full_response = ""
+    assistant_response = random.choice(
+            [
+                "Hello there! How can I assist you today?",
+                "Hi, human! Is there anything I can help you with?",
+                "Do you need help?",
+            ]
+        )
+    # Simulate stream of response with milliseconds delay
+    for chunk in assistant_response.split():
+        full_response += chunk + " "
+        time.sleep(0.05)
+    return full_response
+
+
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -14,36 +30,20 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # Accept user input
-def chat_response(prompt):
+if prompt := st.chat_input("What is up?"):
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     # Display user message in chat message container
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Generate and display assistant response
-    assistant_response = random.choice(
-        [
-            "Hello there! How can I assist you today?",
-            "Hi, human! Is there anything I can help you with?",
-            "Do you need help?",
-        ]
-    )
+    # Display assistant response in chat message container
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
-        full_response = ""
-        # Simulate stream of response with milliseconds delay
-        for chunk in assistant_response.split():
-            full_response += chunk + " "
-            time.sleep(0.05)
-            # Add a blinking cursor to simulate typing
-            message_placeholder.markdown(full_response + "▌")
+        full_response = chat_response(prompt)
         message_placeholder.markdown(full_response)
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response})
-
-if prompt := st.chat_input("What is up?"):
-    chat_response(prompt)
 
 
 st.sidebar.markdown('**Marketing insights and Reporting**')
