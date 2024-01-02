@@ -41,6 +41,12 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    # Generate assistant response and potentially a numpy array
+    full_response, the_thing = chat_response(prompt)
+
+    # Add assistant response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
+
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
         with st.spinner("Processing..."):
@@ -55,12 +61,19 @@ if prompt := st.chat_input("What is up?"):
                 the_thing_bytes = io.BytesIO()
                 np.save(the_thing_bytes, the_thing, allow_pickle=False)
                 the_thing_bytes.seek(0)
-                st.download_button(
+                # Use Streamlit's session state to prevent rerun from affecting the chat history
+                if 'download_triggered' not in st.session_state:
+                    st.session_state.download_triggered = False
+                download_button = st.download_button(
                     label="Download the_thing",
                     data=the_thing_bytes,
                     file_name="the_thing.npy",
-                    mime="application/octet-stream"
+                    mime="application/octet-stream",
+                    on_click=lambda: setattr(st.session_state, 'download_triggered', True)
                 )
+                if st.session_state.download_triggered:
+                    # Reset the flag to prevent the download action from affecting the chat history
+                    st.session_state.download_triggered = False
             
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response})
