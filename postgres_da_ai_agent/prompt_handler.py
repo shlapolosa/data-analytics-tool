@@ -256,6 +256,22 @@ class AutogenDataAnalystPromptExecutor(PromptExecutor):
             table_definitions,
         )
 
+        prompt_sql_coder = f"""
+            ## Task
+            Generate a SQL query to answer the following question:
+            `{self.prompt}`
+
+            ### Database Schema
+            This query will run on a database whose schema is represented in this string:
+            {table_definitions}
+
+            ### SQL
+            Given the database schema, here is the SQL query that answers `{self.prompt}`:
+            ```sql
+
+
+            """
+
         # ----------- Data Eng Team: Based on a sql table definitions and a prompt create an sql statement and execute it -------------
 
         data_eng_orchestrator = agents.build_team_orchestrator(

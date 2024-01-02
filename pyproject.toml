@@ -20,6 +20,7 @@ tiktoken = "^0.5.1"
 guidance = "^0.0.64"
 diskcache = "^5.6.3"
 litellm = "^1.15.7"
+langchain = "^0.0.353"
 
 
 [build-system]

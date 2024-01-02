@@ -125,3 +125,43 @@ write_innovation_file_config = {
         }
     ],
 }
+
+
+config_list_ollama = [
+    {
+        'base_url': "http://0.0.0.0:47008",
+        'api_key': "NULL",
+    }
+]
+
+llm_config_ollama={
+    "config_list": config_list_ollama,
+}
+
+config_list_sqlcoder = [
+    {
+        'base_url': "http://0.0.0.0:8000",
+        'api_key': "NULL",
+        "temperature": 0,
+        "functions": [
+            {
+                "name": "run_sql",
+                "description": "Run a SQL query against the postgres database",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "sql": {
+                            "type": "string",
+                            "description": "The SQL query to run",
+                        }
+                    },
+                    "required": ["sql"],
+                },
+            }
+        ],
+    }
+]
+
+llm_config_sqlcoder={
+        "config_list": config_list_sqlcoder,
+}

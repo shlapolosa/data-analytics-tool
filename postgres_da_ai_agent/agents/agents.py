@@ -12,6 +12,20 @@ USER_PROXY_PROMPT = "A human admin. Interact with the Product Manager to discuss
 DATA_ENGINEER_PROMPT = "A Data Engineer. Generate the initial SQL based on the requirements provided. Only generate the SQL if you have sufficient TABLE_DEFINITIONS to work with. When generating the SQL beware that the tables are in the 'atomic' schema. Send it to the Sr Data Analyst to be executed. "
 SR_DATA_ANALYST_PROMPT = "Sr Data Analyst. You run the SQL query using the run_sql function, send the raw response to the data viz team. You use the run_sql function exclusively."
 
+DATA_ENGINEER_PROMPT_LOCAL = """
+## Task
+Generate a SQL query to answer the following question:
+`{prompt}`
+
+### Database Schema
+This query will run on a database whose schema is represented in this string:
+{schema}
+
+### SQL
+Given the database schema, here is the SQL query that answers `{prompt}`:
+```sql
+
+"""
 
 GUIDANCE_SCRUM_MASTER_SQL_NLQ_PROMPT = """
 Is the following block of text a SQL Natural Language Query (NLQ)? Please rank from 1 to 5, where:
@@ -56,6 +70,63 @@ YML_REPORT_ANALYST_PROMPT = "Yaml Report Analyst. You exclusively use the write_
 
 
 # ------------------------ BUILD AGENT TEAMS ------------------------
+
+
+def build_local_data_eng_team(instruments: PostgresAgentInstruments):
+
+    # from langchain.llms import Ollama
+    # ollama_openhermes = Ollama(model="sqlcoder")
+
+    user_proxy = autogen.UserProxyAgent(
+        name="Admin",
+        system_message=USER_PROXY_PROMPT,
+        code_execution_config=False,
+        human_input_mode="NEVER",
+    )
+
+    # data engineer agent - generates the sql query
+    data_engineer = autogen.AssistantAgent(
+        name="Engineer",
+        llm_config=agent_config.llm_config_sqlcoder,
+        system_message=DATA_ENGINEER_PROMPT,
+        code_execution_config=False,
+        human_input_mode="NEVER",
+    )
+
+    sr_data_analyst = autogen.AssistantAgent(
+        name="Sr_Data_Analyst",
+        llm_config=agent_config.llm_config_sqlcoder,
+        system_message=SR_DATA_ANALYST_PROMPT,
+        code_execution_config=False,
+        human_input_mode="NEVER",
+        function_map={
+            "run_sql": instruments.run_sql,
+        },
+    )
+    return [
+        user_proxy,
+        data_engineer,
+        sr_data_analyst,
+    ]
+
+def build_local_scrum_master_team(instruments: PostgresAgentInstruments):
+ 
+    user_proxy = autogen.UserProxyAgent(
+        name="Admin",
+        system_message=USER_PROXY_PROMPT,
+        code_execution_config=False,
+        human_input_mode="NEVER",
+        llm_config=agent_config.llm_config_ollama,
+    )
+
+    scrum_agent = DefensiveScrumMasterAgent(
+        name="Scrum_Master",
+        llm_config=agent_config.llm_config_ollama,
+        system_message=GUIDANCE_SCRUM_MASTER_SQL_NLQ_PROMPT,
+        human_input_mode="NEVER",
+    )
+
+    return [user_proxy, scrum_agent]
 
 
 def build_data_eng_team(instruments: PostgresAgentInstruments):
