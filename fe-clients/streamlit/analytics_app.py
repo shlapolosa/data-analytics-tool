@@ -4,17 +4,36 @@ import random
 import time
 import numpy as np
 from PIL import Image
+from postgres_da_ai_agent.modules import rand
+from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
+from postgres_da_ai_agent.prompt_handler import PromptHandler
+import os
+
+
+DB_URL = os.environ.get("DATABASE_URL")
 
 st.title("Ask a question")
 
 if 'download_triggered' not in st.session_state:
     st.session_state.download_triggered = False
 
-def prompt_response(prompt):
+def prompt_response(raw_prompt):
     # Logic to generate a response string and object based on the prompt
     response_string = "This is a placeholder response."
     response_object = None
-    # Placeholder logic can be replaced with actual implementation
+    
+    prompt = f"Fulfill this database query: {raw_prompt}. "
+
+    assistant_name = "Turbo4"
+
+    session_id = rand.generate_session_id(assistant_name + raw_prompt)
+
+    response = None
+    with PostgresAgentInstruments(DB_URL, session_id) as (agent_instruments, db):
+        with PromptHandler(prompt, agent_instruments, db) as executor:
+            response = executor.execute()
+    response_string = f"{response.last_message_str}\n Tokens: {response.tokens}\ln Suggestion: {response.suggestions}"
+    response_object = np.random.randn(30, 3) if random.randint(1, 10) % 2 else None
     return response_string, response_object
 
 def chat_response(prompt):
@@ -79,7 +98,7 @@ if prompt := st.chat_input("What is up?"):
         st.markdown(prompt)
 
     # Generate assistant response and potentially a numpy array
-    full_response, the_thing = chat_response(prompt)
+    full_response, the_thing = prompt_response(prompt)
 
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": full_response, "artifact": the_thing})
