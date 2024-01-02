@@ -22,7 +22,7 @@ if st.sidebar.button('Configure Assistant'):
     )
 st.sidebar.markdown("---")
 st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_html=True)
-if st.sidebar.button('Configure Assistant'):
+if st.sidebar.button('Configure Assistant', key='configure_assistant'):
     assistant_name = st.sidebar.text_input('Name')
     uploaded_file = st.sidebar.file_uploader(
         'Knowledge',
