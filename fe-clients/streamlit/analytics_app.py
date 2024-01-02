@@ -24,3 +24,14 @@ st.sidebar.markdown("---")
 st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_html=True)
 
 
+roles = {
+    "AssistantAPI": ["Turbo4", "Informational"],
+    "Autogen": ["Admin", "Engineer", "Data Analyst", "Scrum Master", "Insights Reporter"],
+    "CrewAI": ["Team"]
+}
+
+selected_roles = roles.get(run_mode, [])
+for role in selected_roles:
+    st.sidebar.write(role)
+
+
