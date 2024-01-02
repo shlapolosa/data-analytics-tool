@@ -141,6 +141,16 @@ Talk To Your Database: [https://talktoyourdb.com](https://talktoyourdatabase.com
 
 # 🧠 Major Learnings Throughout the Series 🧠
 
+## 🚀 Running the Streamlit Client 🚀
+To run the Streamlit client located in `fe-clients/streamlit/analytics_app.py`, follow these steps:
+
+1. Navigate to the `fe-clients/streamlit` directory in your terminal.
+2. Run the command `streamlit run analytics_app.py`.
+3. The Streamlit application will start, and your default web browser should open automatically to the app's URL, typically `http://localhost:8501`.
+4. Interact with the application through the web interface.
+
+Make sure you have Streamlit installed in your Python environment. If not, you can install it using `pip install streamlit`.
+
 ## 💡 Why are multi-agent applications important?
 - They're important because they allows us to create a more accurate model of the world.
 - We become orchestrators enabling less engineering level and more product level work.
