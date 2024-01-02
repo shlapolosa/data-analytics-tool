@@ -1,4 +1,47 @@
 import streamlit as st
+import random
+import time
+
+st.title("Ask a question")
+
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Display chat messages from history on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# Accept user input
+if prompt := st.chat_input("What is up?"):
+    # Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    # Display user message in chat message container
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # Display assistant response in chat message container
+    with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        full_response = ""
+        assistant_response = random.choice(
+            [
+                "Hello there! How can I assist you today?",
+                "Hi, human! Is there anything I can help you with?",
+                "Do you need help?",
+            ]
+        )
+        # Simulate stream of response with milliseconds delay
+        for chunk in assistant_response.split():
+            full_response += chunk + " "
+            time.sleep(0.05)
+            # Add a blinking cursor to simulate typing
+            message_placeholder.markdown(full_response + "▌")
+        message_placeholder.markdown(full_response)
+    # Add assistant response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
+
 
 st.sidebar.markdown('**Marketing insights and Reporting**')
 st.sidebar.markdown("This assistant helps to navigate and answer questions you might have of your analytics data\n\n Simply type your question in the prompt and the assistant will convert it into the necessary sql and interrogate your data to give an answer as well as the steps it took to get to the answer.\nYou can also select whether you want to use openAI api or run using local models by selecting the Run mode ✅")
@@ -17,24 +60,6 @@ with st.container() as border1:
     selected_roles = roles.get(run_mode, [])
     for role in selected_roles:
         st.sidebar.markdown(f"<p align='center'>{role}</p>", unsafe_allow_html=True)
-
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = []
-
-st.status("Please type your message and press enter...")
-user_input = st.chat_input("Type your message here...", key="chat_input")
-if user_input:
-    st.session_state.chat_history.append({'message': user_input, 'is_user': True})
-    # Here you would typically handle the user input, call the assistant API or process the input locally,
-    # and then update the chat history with the assistant's response.
-    # For example, let's simulate a response:
-    st.session_state.chat_history.append({'message': "This is a simulated response.", 'is_user': False})
-
-for chat in st.session_state.chat_history:
-    if chat['is_user']:
-        st.chat_message(chat['message'], is_user=True)
-    else:
-        st.chat_message(chat['message'], is_user=False)
 
 if st.sidebar.button('Configure Assistant'):
     assistant_name = st.sidebar.text_input('Name')
