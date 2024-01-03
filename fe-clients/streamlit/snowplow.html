@@ -34,6 +34,10 @@
           "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-browser-features@latest/dist/index.umd.min.js",
           ["snowplowBrowserFeatures", "BrowserFeaturesPlugin"]
         );
+        window.snowplow('addPlugin',
+          "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-ga-cookies@latest/dist/index.umd.min.js",
+          ["snowplowGaCookies", "GaCookiesPlugin"]
+        );
     </script>
 </head>
 <body>
