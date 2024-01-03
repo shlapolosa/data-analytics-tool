@@ -358,10 +358,9 @@ class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
         )
 
         print(f"✅ Turbo4 Assistant finished.")
+        self.innovation_suggestions()
         result, sql, follow_up = self.agent_instruments.populate_conversation_result()
-        self.conversation_result = ConversationResult(success=True, messages=[], cost=0.0, tokens=0, last_message_str="", error_message="", suggestions=follow_up)
-        self.conversation_result.result = result
-        self.conversation_result.sql = sql
+        self.conversation_result = ConversationResult(success=True, messages=[], cost=0.0, tokens=0, last_message_str="", error_message="", sql=sql, result=result, follow_up=follow_up)
         return self.conversation_result
 
 class PromptHandler:
@@ -388,7 +387,7 @@ class PromptHandler:
                 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
                 load_dotenv(dotenv_path, verbose=True)
                 print("OPENAI_API_KEY "+os.getenv("OPENAI_API_KEY"))
-                if len(os.getenv("OPENAI_API_KEY")) > 1:                                                                                                                        
+                if False :                                                                                                                        
                     return AutogenDataAnalystPromptExecutor(self.prompt, db, self.agent_instruments)                                                                                            
                 else:                                                                                                                                                                       
                     return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, nlq_confidence)
