@@ -11,6 +11,7 @@ from PIL import Image
 from postgres_da_ai_agent.modules import rand
 from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
 from postgres_da_ai_agent.prompt_handler import PromptHandler
+from postgres_da_ai_agent.types import Innovation
 import pandas as pd 
 
 
@@ -70,18 +71,18 @@ def display_assistant_response(full_response, the_thing):
             # Display as DataFrame with new Streamlit 1.29.0 parameters
             with st.container():
                 st.dataframe(result_data, use_container_width=True)
-        # Display as Table                                                                                           
-        with st.container():                                                                                         
-             st.table(result_data)                                                                                    
-        # Display as Data Editor (assuming Streamlit >= 1.12.0)                                                      
-        with st.container():                                                                                         
-             st._arrow_data_editor(result_data)  
-        # Display as Table
-        with st.container():
-            st.table(result_data)
-        # Display as Data Editor (assuming Streamlit >= 1.12.0)
-        with st.container():
-            st._arrow_data_editor(result_data)
+            # Display as Table                                                                                           
+            with st.container():                                                                                         
+                st.table(result_data)                                                                                    
+            # Display as Data Editor (assuming Streamlit >= 1.12.0)                                                      
+            with st.container():                                                                                         
+                st._arrow_data_editor(result_data)  
+            # Display as Table
+            with st.container():
+                st.table(result_data)
+            # Display as Data Editor (assuming Streamlit >= 1.12.0)
+            with st.container():
+                st._arrow_data_editor(result_data)
     # Set the value of SQL to the SQL tab
     with tab2:
         st.code(full_response.sql, language="sql", line_numbers=True)
@@ -171,4 +172,4 @@ if st.sidebar.button('Configure Assistant'):
     )
 st.sidebar.markdown("---")
 st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_html=True)
-from postgres_da_ai_agent.types import Innovation
+
