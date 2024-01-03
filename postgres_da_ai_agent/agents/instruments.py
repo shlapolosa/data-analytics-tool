@@ -114,6 +114,38 @@ class PostgresAgentInstruments(AgentInstruments):
 
     # -------------------------- Agent Functions -------------------------- #
 
+    def populate_conversation_result(self) -> ConversationResult:
+        """
+        Reads from the run_sql_results_file and sql_query_file to populate
+        the result and sql properties of a ConversationResult object.
+        Sets the follow_up property based on specific logic.
+        """
+        # Initialize a new ConversationResult object
+        conversation_result = ConversationResult(
+            success=True,  # Assuming success for this example
+            messages=[],  # Assuming no messages for this example
+            cost=0,  # Assuming no cost for this example
+            tokens=0,  # Assuming no tokens for this example
+            last_message_str="",  # Assuming no last message for this example
+            error_message="",  # Assuming no error for this example
+        )
+
+        # Read the SQL query results
+        with open(self.run_sql_results_file, 'r') as results_file:
+            conversation_result.result = results_file.read()
+
+        # Read the SQL query
+        with open(self.sql_query_file, 'r') as query_file:
+            conversation_result.sql = query_file.read()
+
+        # TODO: Implement the specific logic for follow_up
+        # Placeholder for follow-up logic
+        follow_up_logic = "This is a placeholder for the follow-up logic."
+        conversation_result.follow_up = follow_up_logic
+
+        return conversation_result
+
+
     def run_sql(self, sql: str) -> str:
         """
         Run a SQL query against the postgres database
