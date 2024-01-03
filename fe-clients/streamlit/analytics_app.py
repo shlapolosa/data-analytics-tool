@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import json
 import io
 import random
@@ -15,10 +16,19 @@ from postgres_da_ai_agent.prompt_handler import PromptHandler
 from postgres_da_ai_agent.types import Innovation
 import pandas as pd 
 
-
 DB_URL = os.environ.get("DATABASE_URL")
 
 st.title("Ask a question")
+
+# Path to your Snowplow HTML file
+snowplow_html_file = os.path.join(os.path.dirname('snowplow.html'), './', './')
+
+# Read the HTML file
+with open(snowplow_html_file, 'r') as file:
+    snowplow_html = file.read()
+
+# Embed the Snowplow HTML in your Streamlit app
+components.html(snowplow_html, height=0, width=0)
 
 if 'download_triggered' not in st.session_state:
     st.session_state.download_triggered = False
