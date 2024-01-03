@@ -152,3 +152,4 @@ if st.sidebar.button('Configure Assistant'):
     )
 st.sidebar.markdown("---")
 st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_html=True)
+from postgres_da_ai_agent.types import Innovation
