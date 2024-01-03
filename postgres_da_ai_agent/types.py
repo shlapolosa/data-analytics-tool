@@ -22,7 +22,7 @@ class ConversationResult:
     last_message_str: str
     error_message: str
     sql: str = ""
-    result: str = ""
+    result: dict = field(default_factory=dict)
     follow_up: str = ""
     suggestions: List[str] = field(default_factory=list)
 
