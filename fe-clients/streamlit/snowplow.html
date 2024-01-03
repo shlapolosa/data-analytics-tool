@@ -30,6 +30,10 @@
           ["snowplowButtonClickTracking", "ButtonClickTrackingPlugin"]
         );
         window.snowplow('enableButtonClickTracking');
+        window.snowplow('addPlugin', 
+          "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-browser-features@latest/dist/index.umd.min.js",
+          ["snowplowBrowserFeatures", "BrowserFeaturesPlugin"]
+        );
     </script>
 </head>
 <body>
