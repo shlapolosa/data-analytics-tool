@@ -26,6 +26,24 @@ class AgentInstruments:
         """
         raise NotImplementedError
 
+    def populate_conversation_result(self, success: bool, messages: list, cost: float, tokens: int, last_message_str: str, error_message: str = "", sql: str = "", result: str = "", follow_up: str = "", suggestions: list = None) -> ConversationResult:
+        """
+        Populate a ConversationResult data structure with provided values.
+        """
+        if suggestions is None:
+            suggestions = []
+        return ConversationResult(
+            success=success,
+            messages=messages,
+            cost=cost,
+            tokens=tokens,
+            last_message_str=last_message_str,
+            error_message=error_message,
+            sql=sql,
+            result=result,
+            follow_up=follow_up,
+            suggestions=suggestions
+        )
     def make_agent_chat_file(self, team_name: str):
         return os.path.join(self.root_dir, f"agent_chats_{team_name}.json")
 
