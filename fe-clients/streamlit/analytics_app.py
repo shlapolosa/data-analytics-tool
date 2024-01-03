@@ -59,12 +59,18 @@ def chat_response(prompt):
 
 def display_assistant_response(full_response, the_thing):
     # Create tabs for Response and Artifact
-    tab1, tab2 = st.tabs(["Response", "Artifact"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Response", "SQL", "Innovation", "Artifact"])
     # Set the value of full_response to the Response tab
     with tab1:             
         st.markdown(full_response, unsafe_allow_html=True)
-        # Set the value of the_thing to the Artifact tab
-        with tab2:
+    # Set the value of SQL to the SQL tab
+    with tab2:
+        st.text("SQL query will be displayed here.")
+    # Set the value of Innovation to the Innovation tab
+    with tab3:
+        st.text("Innovation insights will be displayed here.")
+    # Set the value of the_thing to the Artifact tab
+    with tab4:
             if the_thing is not None:
                 st.bar_chart(the_thing)
                 img = Image.fromarray(the_thing, 'RGB')
