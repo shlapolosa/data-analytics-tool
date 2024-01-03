@@ -127,7 +127,16 @@ class PostgresAgentInstruments(AgentInstruments):
         with open(self.sql_query_file, 'r') as query_file:
             sql = query_file.read()
 
-        return result, sql
+        # Initialize a list to hold the content of innovation files
+        innovation_contents = []
+        # Loop through the innovation files and read their content
+        for i in range(self.innovation_index):
+            fname = self.get_file_path(f"{i}_innovation_file.json")
+            with open(fname, "r") as f:
+                content = f.read()
+                innovation_contents.append(content)
+
+        return result, sql, innovation_contents
 
 
     def run_sql(self, sql: str) -> str:
