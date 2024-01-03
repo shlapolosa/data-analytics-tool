@@ -25,6 +25,11 @@
           "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-error-tracking@latest/dist/index.umd.min.js",
           ["snowplowErrorTracking", "ErrorTrackingPlugin"]
         );
+        window.snowplow('addPlugin', 
+          "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-button-click-tracking@latest/dist/index.umd.min.js",
+          ["snowplowButtonClickTracking", "ButtonClickTrackingPlugin"]
+        );
+        window.snowplow('enableButtonClickTracking');
     </script>
 </head>
 <body>
