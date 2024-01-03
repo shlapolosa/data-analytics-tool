@@ -1,4 +1,5 @@
 from postgres_da_ai_agent.modules.db import PostgresManager
+from postgres_da_ai_agent.types import Innovation
 import json
 from postgres_da_ai_agent.modules import file
 import os
