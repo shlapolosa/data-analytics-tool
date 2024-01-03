@@ -21,7 +21,7 @@ DB_URL = os.environ.get("DATABASE_URL")
 st.title("Ask a question")
 
 # Path to your Snowplow HTML file
-snowplow_html_file = os.path.join(os.path.dirname('snowplow.html'), './', './')
+snowplow_html_file = os.path.join(os.path.dirname(__file__), 'snowplow.html')
 
 # Read the HTML file
 with open(snowplow_html_file, 'r') as file:
