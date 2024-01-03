@@ -21,6 +21,10 @@
           "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-debugger@latest/dist/index.umd.min.js",
           ["snowplowDebugger", "DebuggerPlugin"]
         );
+        window.snowplow('addPlugin', 
+          "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-error-tracking@latest/dist/index.umd.min.js",
+          ["snowplowErrorTracking", "ErrorTrackingPlugin"]
+        );
     </script>
 </head>
 <body>
