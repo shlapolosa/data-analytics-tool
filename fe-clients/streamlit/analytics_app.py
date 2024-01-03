@@ -95,21 +95,19 @@ def display_assistant_response(full_response, the_thing):
             st.markdown("---")  # Divider between each innovation
     # Set the value of the_thing to the Artifact tab
     with tab4:
-            if the_thing is not None:
-                st.bar_chart(the_thing)
-                img = Image.fromarray(the_thing, 'RGB')
-                # Convert the numpy array to a file and create a download button
-                the_thing_bytes = io.BytesIO()
-                np.save(the_thing_bytes, the_thing, allow_pickle=False)
-                the_thing_bytes.seek(0)
-                download_button = st.download_button(
-                    label="Download the_thing",
-                    data=the_thing_bytes,
-                    file_name="the_thing.npy",
-                    mime="application/octet-stream",
-                    on_click=lambda: setattr(st.session_state, 'download_triggered', True),
-                    key="download_the_thing_outside"
-                )
+        # Create a pandas dataframe from full_response.result
+        df = pd.DataFrame(full_response.result)
+        # Display various charts using the dataframe
+        st.area_chart(df)
+        st.bar_chart(df)
+        st.line_chart(df)
+        st.scatter_chart(df)
+
+        # For st.pyplot, st.altair_chart, st.vega_lite_chart, st.plotly_chart, st.bokeh_chart, st.pydeck_chart, st.graphviz_chart, and st.map
+        # we would need specific data structures or additional code to generate meaningful visualizations.
+        # These functions are not directly compatible with a generic dataframe without additional context or data processing.
+        # Therefore, we will not include them here as it would require a deeper understanding of the data and the desired visualizations.
+        # If you have specific requirements for these charts, please provide further details or examples of the data and the expected output.
 
 
 # Initialize chat history
