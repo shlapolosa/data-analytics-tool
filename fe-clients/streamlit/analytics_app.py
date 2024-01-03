@@ -59,7 +59,11 @@ def chat_response(prompt):
     return full_response, the_thing
 
 def display_assistant_response(full_response, the_thing):
-    # Create tabs for Response and Artifact
+    # Parse the full_response if it's a string (JSON)
+    if isinstance(full_response, str):
+        full_response = json.loads(full_response)
+
+    # Create tabs for Response, SQL, Innovation, and Artifact
     tab1, tab2, tab3, tab4 = st.tabs(["Response", "SQL", "Innovation", "Artifact"])
     # Set the value of full_response to the Response tab
     with tab1:             
@@ -68,6 +72,11 @@ def display_assistant_response(full_response, the_thing):
         # Check if full_response.result is a valid data structure for st.dataframe
         if isinstance(full_response.result, (pd.DataFrame, pd.Series, pd.Index, np.ndarray, dict, list, set)):
             result_data = pd.DataFrame(full_response.result)  # Convert to DataFrame if not already one
+        st.markdown(full_response['last_message_str'], unsafe_allow_html=True)
+
+        # Check if full_response.result is a valid data structure for st.dataframe
+        if isinstance(full_response['result'], (pd.DataFrame, pd.Series, pd.Index, np.ndarray, dict, list, set)):
+            result_data = pd.DataFrame(full_response['result'])  # Convert to DataFrame if not already one
             # Display as DataFrame with new Streamlit 1.29.0 parameters
             with st.container():
                 st.dataframe(result_data, use_container_width=True)
@@ -85,10 +94,10 @@ def display_assistant_response(full_response, the_thing):
                 st._arrow_data_editor(result_data)
     # Set the value of SQL to the SQL tab
     with tab2:
-        st.code(full_response.sql, language="sql", line_numbers=True)
+        st.code(full_response['sql'], language="sql", line_numbers=True)
     # Set the value of Innovation to the Innovation tab
     with tab3:
-        innovations = Innovation.from_json_string(full_response.follow_up)
+        innovations = Innovation.from_json_string(full_response['follow_up'])
         for innovation in innovations:
             st.header(innovation.insight)
             st.write(innovation.actionable_business_value)
