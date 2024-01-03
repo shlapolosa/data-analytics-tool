@@ -123,19 +123,19 @@ class PostgresAgentInstruments(AgentInstruments):
         """
         # Read the SQL query results
         with open(self.run_sql_results_file, 'r') as results_file:
-            result = results_file.read()
+            result = json.loads(results_file.read())
 
         # Read the SQL query
         with open(self.sql_query_file, 'r') as query_file:
             sql = query_file.read()
 
         # Initialize a list to hold the content of innovation files
-        innovation_contents = ''
+        innovation_contents = []
         # Loop through the innovation files and read their content
         for i in range(self.innovation_index):
             fname = self.get_file_path(f"{i}_innovation_file.json")
             with open(fname, "r") as f:
-                innovation_contents = f.read()
+                innovation_contents.append(json.loads(f.read()))
 
         return result, sql, innovation_contents
 
