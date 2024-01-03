@@ -23,7 +23,7 @@ class ConversationResult:
     error_message: str
     sql: str = ""
     result: dict = field(default_factory=dict)
-    follow_up: str = ""
+    follow_up: List[dict] = field(default_factory=list)
     suggestions: List[str] = field(default_factory=list)
 
 
