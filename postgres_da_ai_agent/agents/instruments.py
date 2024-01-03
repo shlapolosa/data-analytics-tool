@@ -135,7 +135,8 @@ class PostgresAgentInstruments(AgentInstruments):
         for i in range(self.innovation_index):
             fname = self.get_file_path(f"{i}_innovation_file.json")
             with open(fname, "r") as f:
-                content = json.loads(f.read())
+                content_list = f.readlines()
+                content = [json.loads(line) for line in content_list]
                 # Convert each JSON object into an Innovation instance
                 innovation_contents.append(Innovation.from_json_string(content))
 
