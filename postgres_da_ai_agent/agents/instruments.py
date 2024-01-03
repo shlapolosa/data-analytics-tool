@@ -116,8 +116,10 @@ class PostgresAgentInstruments(AgentInstruments):
 
     def populate_conversation_result(self):
         """
-        Reads from the run_sql_results_file and sql_query_file to return
-        the result and sql as a tuple.
+          Reads from the run_sql_results_file, sql_query_file and innovation_file to return                                             
+          the result and sql and innovation_content as a tuple. The population of these files happens                                         
+          async by the assistant tool functions and can only be read at the end                                        
+          of the process. TODO: move results to a db rather.   
         """
         # Read the SQL query results
         with open(self.run_sql_results_file, 'r') as results_file:
