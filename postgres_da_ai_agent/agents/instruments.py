@@ -114,7 +114,7 @@ class PostgresAgentInstruments(AgentInstruments):
 
     # -------------------------- Agent Functions -------------------------- #
 
-    def populate_conversation_result(self) -> ConversationResult:
+    def populate_conversation_result(self):
         """
         Reads from the run_sql_results_file and sql_query_file to return
         the result and sql as a tuple.
