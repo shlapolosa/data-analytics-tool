@@ -78,7 +78,7 @@ def display_assistant_response(full_response, the_thing):
         # Check if full_response.result is a valid data structure for st.dataframe
         if isinstance(full_response.result, (pd.DataFrame, pd.Series, pd.Index, np.ndarray, dict, list, set)):
             result_data = pd.DataFrame(full_response.result)  # Convert to DataFrame if not already one
-        st.markdown(full_response['last_message_str'], unsafe_allow_html=True)
+        st.markdown(full_response.last_message_str, unsafe_allow_html=True)
 
         # Check if full_response.result is a valid data structure for st.dataframe
         if isinstance(full_response['result'], (pd.DataFrame, pd.Series, pd.Index, np.ndarray, dict, list, set)):
