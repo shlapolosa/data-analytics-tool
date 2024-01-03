@@ -358,8 +358,10 @@ class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
         )
 
         print(f"✅ Turbo4 Assistant finished.")
-        conv_res = self.innovation_suggestions()
-        self.conversation_result.suggestions = conv_res.messages
+        result, sql, follow_up = self.agent_instruments.populate_conversation_result()
+        self.conversation_result = ConversationResult(success=True, messages=[], cost=0.0, tokens=0, last_message_str="", error_message="", suggestions=follow_up)
+        self.conversation_result.result = result
+        self.conversation_result.sql = sql
         return self.conversation_result
 
 class PromptHandler:
