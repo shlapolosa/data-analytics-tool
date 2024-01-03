@@ -68,7 +68,12 @@ def display_assistant_response(full_response, the_thing):
         st.code(full_response.sql, language="sql", line_numbers=True)
     # Set the value of Innovation to the Innovation tab
     with tab3:
-        st.text("Innovation insights will be displayed here.")
+        innovations = Innovation.from_json_string(full_response.follow_up)
+        for innovation in innovations:
+            st.header(innovation.insight)
+            st.write(innovation.actionable_business_value)
+            st.code(innovation.sql, language="sql")
+            st.markdown("---")  # Divider between each innovation
     # Set the value of the_thing to the Artifact tab
     with tab4:
             if the_thing is not None:
