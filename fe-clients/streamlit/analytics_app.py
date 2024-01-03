@@ -64,10 +64,12 @@ def display_assistant_response(full_response, the_thing):
     with tab1:             
         st.markdown(full_response, unsafe_allow_html=True)
                                                                                          
-        result_data = pd.DataFrame(full_response.result)  # Assuming full_response.result is already a dict or list  dicts                                                                                                                 
-        # Display as DataFrame                                                                                       
-        with st.container():                                                                                         
-            st.dataframe(result_data)                                                                                
+        # Check if full_response.result is a valid data structure for st.dataframe
+        if isinstance(full_response.result, (pd.DataFrame, pd.Series, pd.Styler, pd.Index, np.ndarray, dict, list, set)):
+            result_data = pd.DataFrame(full_response.result)  # Convert to DataFrame if not already one
+            # Display as DataFrame with new Streamlit 1.29.0 parameters
+            with st.container():
+                st.dataframe(result_data, use_container_width=True)
         # Display as Table                                                                                           
         with st.container():                                                                                         
              st.table(result_data)                                                                                    
