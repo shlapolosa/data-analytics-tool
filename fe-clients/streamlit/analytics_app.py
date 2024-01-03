@@ -96,7 +96,64 @@ def display_assistant_response(full_response, the_thing):
     # Set the value of the_thing to the Artifact tab
     with tab4:
         # Create a pandas dataframe from full_response.result
-        df = pd.DataFrame(full_response.result)
+        result_data = full_response.result
+        df = pd.DataFrame(result_data)
+
+        # Display various charts using the dataframe if the data format is suitable
+        if isinstance(result_data, (pd.DataFrame, pd.Series, pd.Index, np.ndarray, dict, list)):
+            st.area_chart(df)
+            st.bar_chart(df)
+            st.line_chart(df)
+            st.scatter_chart(df)
+
+            # For other chart types, we need to check if the data format is suitable
+            # and potentially preprocess the data to fit the requirements of each chart type
+
+            # st.pyplot
+            # Assuming result_data can be used to generate a matplotlib figure
+            # fig, ax = plt.subplots()
+            # ax.plot(...) # Replace with actual plotting code
+            # st.pyplot(fig)
+
+            # st.altair_chart
+            # Assuming result_data can be converted to an Altair chart
+            # chart = alt.Chart(df).mark_line().encode(...)
+            # st.altair_chart(chart, use_container_width=True)
+
+            # st.vega_lite_chart
+            # Assuming result_data can be used with Vega-Lite specifications
+            # vega_spec = {...} # Replace with actual Vega-Lite spec
+            # st.vega_lite_chart(vega_spec, use_container_width=True)
+
+            # st.plotly_chart
+            # Assuming result_data can be used to generate a Plotly figure
+            # fig = px.line(df, ...) # Replace with actual Plotly code
+            # st.plotly_chart(fig, use_container_width=True)
+
+            # st.bokeh_chart
+            # Assuming result_data can be used to generate a Bokeh plot
+            # plot = figure(...)
+            # plot.line(...) # Replace with actual Bokeh plotting code
+            # st.bokeh_chart(plot, use_container_width=True)
+
+            # st.pydeck_chart
+            # Assuming result_data contains geospatial data for PyDeck
+            # layer = pdk.Layer(...)
+            # deck = pdk.Deck(layers=[layer], ...)
+            # st.pydeck_chart(deck)
+
+            # st.graphviz_chart
+            # Assuming result_data can be represented as a Graphviz graph
+            # graph = graphviz.Graph(...)
+            # st.graphviz_chart(graph)
+
+            # st.map
+            # Assuming result_data contains latitude and longitude for mapping
+            # st.map(df)
+
+        # Note: For the above chart types, additional context or data processing might be required
+        # to generate meaningful visualizations. The code assumes that result_data is in a format
+        # that can be directly used or easily transformed for each chart type.
         # Display various charts using the dataframe
         st.area_chart(df)
         st.bar_chart(df)
