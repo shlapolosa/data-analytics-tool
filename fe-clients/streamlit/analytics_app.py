@@ -65,7 +65,7 @@ def display_assistant_response(full_response, the_thing):
         st.markdown(full_response, unsafe_allow_html=True)
     # Set the value of SQL to the SQL tab
     with tab2:
-        st.text("SQL query will be displayed here.")
+        st.code(full_response.sql, language="sql", line_numbers=True)
     # Set the value of Innovation to the Innovation tab
     with tab3:
         st.text("Innovation insights will be displayed here.")
