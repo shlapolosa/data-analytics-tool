@@ -11,7 +11,7 @@ from PIL import Image
 from postgres_da_ai_agent.modules import rand
 from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
 from postgres_da_ai_agent.prompt_handler import PromptHandler
-
+import pandas as pd 
 
 
 DB_URL = os.environ.get("DATABASE_URL")
@@ -63,6 +63,17 @@ def display_assistant_response(full_response, the_thing):
     # Set the value of full_response to the Response tab
     with tab1:             
         st.markdown(full_response, unsafe_allow_html=True)
+                                                                                         
+        result_data = pd.DataFrame(full_response.result)  # Assuming full_response.result is already a dict or list  dicts                                                                                                                 
+        # Display as DataFrame                                                                                       
+        with st.container():                                                                                         
+            st.dataframe(result_data)                                                                                
+        # Display as Table                                                                                           
+        with st.container():                                                                                         
+             st.table(result_data)                                                                                    
+        # Display as Data Editor (assuming Streamlit >= 1.12.0)                                                      
+        with st.container():                                                                                         
+             st._arrow_data_editor(result_data)  
     # Set the value of SQL to the SQL tab
     with tab2:
         st.code(full_response.sql, language="sql", line_numbers=True)
