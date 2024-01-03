@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Callable, List
 from dataclasses import dataclass, field
 import time
+import json
 
 
 @dataclass
@@ -24,6 +25,21 @@ class ConversationResult:
     result: str = ""
     follow_up: str = ""
     suggestions: List[str] = field(default_factory=list)
+
+
+@dataclass
+class Innovation:
+    insight: str
+    actionable_business_value: str
+    sql: str
+
+    @staticmethod
+    def from_json_string(json_str: str):
+        data = json.loads(json_str)
+        return [Innovation(**item) for item in data]
+
+    def __str__(self):
+        return f"Innovation(insight={self.insight}, actionable_business_value={self.actionable_business_value}, sql={self.sql})"
 
 
 @dataclass
