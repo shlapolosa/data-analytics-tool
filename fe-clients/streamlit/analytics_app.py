@@ -68,27 +68,21 @@ def display_assistant_response(full_response, the_thing):
     tab1, tab2, tab3, tab4 = st.tabs(["Response", "SQL", "Innovation", "Artifact"])
     # Set the value of full_response to the Response tab
     with tab1:             
-        st.markdown(full_response, unsafe_allow_html=True)
+        # Check if full_response.result is a string and parse it as JSON                                             
+        if isinstance(full_response.result, str):                                                                    
+            result = json.loads(full_response.result)                                                           
+        else:                                                                                                        
+            result = full_response.result  
                                                                                          
         # Check if full_response.result is a valid data structure for st.dataframe
-        if isinstance(full_response.result, (pd.DataFrame, pd.Series, pd.Index, np.ndarray, dict, list, set)):
-            result_data = pd.DataFrame(full_response.result)  # Convert to DataFrame if not already one
-            
+        if isinstance(result, (pd.DataFrame, pd.Series, pd.Index, np.ndarray, dict, list, set)):
+            result_data = pd.DataFrame(result)  # Convert to DataFrame if not already one
+            # Display as json
+            with st.container():
+                st.json(result, expanded=True)            
             # Display as DataFrame with new Streamlit 1.29.0 parameters
             with st.container():
                 st.dataframe(result_data, use_container_width=True)
-            # Display as Table                                                                                           
-            with st.container():                                                                                         
-                st.table(result_data)                                                                                    
-            # Display as Data Editor (assuming Streamlit >= 1.12.0)                                                      
-            with st.container():                                                                                         
-                st._arrow_data_editor(result_data)  
-            # Display as Table
-            with st.container():
-                st.table(result_data)
-            # Display as Data Editor (assuming Streamlit >= 1.12.0)
-            with st.container():
-                st._arrow_data_editor(result_data)
     # Set the value of SQL to the SQL tab
     with tab2:
         st.code(full_response.sql, language="sql", line_numbers=True)
@@ -97,7 +91,7 @@ def display_assistant_response(full_response, the_thing):
         follow_up_data = json.loads(full_response.follow_up) if isinstance(full_response.follow_up, str) else full_response.follow_up
         innovations = [Innovation(**item) for item in follow_up_data]
         for innovation in innovations:
-            st.header(innovation.insight)
+            st.code(innovation.insight,language=None)
             st.write(innovation.actionable_business_value)
             st.code(innovation.sql, language="sql")
             st.markdown("---")  # Divider between each innovation
