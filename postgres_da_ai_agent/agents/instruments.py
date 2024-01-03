@@ -135,10 +135,14 @@ class PostgresAgentInstruments(AgentInstruments):
         for i in range(self.innovation_index):
             fname = self.get_file_path(f"{i}_innovation_file.json")
             with open(fname, "r") as f:
-                content_list = f.readlines()
-                content = [json.loads(line) for line in content_list]
+                content_str = f.read()
+                # Check if content_str is a string and parse it as JSON
+                if isinstance(content_str, str):
+                    content = json.loads(content_str)
                 # Convert each JSON object into an Innovation instance
-                innovation_contents.append(Innovation.from_json_string(content))
+                innovations = [Innovation(**item) for item in content]
+                # Convert each JSON object into an Innovation instance
+                innovation_contents.extend(innovations)
 
         return result, sql, innovation_contents
 
