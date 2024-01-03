@@ -65,7 +65,7 @@ def display_assistant_response(full_response, the_thing):
         st.markdown(full_response, unsafe_allow_html=True)
                                                                                          
         # Check if full_response.result is a valid data structure for st.dataframe
-        if isinstance(full_response.result, (pd.DataFrame, pd.Series, pd.Styler, pd.Index, np.ndarray, dict, list, set)):
+        if isinstance(full_response.result, (pd.DataFrame, pd.Series, pd.Index, np.ndarray, dict, list, set)):
             result_data = pd.DataFrame(full_response.result)  # Convert to DataFrame if not already one
             # Display as DataFrame with new Streamlit 1.29.0 parameters
             with st.container():
@@ -76,6 +76,12 @@ def display_assistant_response(full_response, the_thing):
         # Display as Data Editor (assuming Streamlit >= 1.12.0)                                                      
         with st.container():                                                                                         
              st._arrow_data_editor(result_data)  
+        # Display as Table
+        with st.container():
+            st.table(result_data)
+        # Display as Data Editor (assuming Streamlit >= 1.12.0)
+        with st.container():
+            st._arrow_data_editor(result_data)
     # Set the value of SQL to the SQL tab
     with tab2:
         st.code(full_response.sql, language="sql", line_numbers=True)
