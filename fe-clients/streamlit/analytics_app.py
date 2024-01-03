@@ -24,7 +24,7 @@ if 'download_triggered' not in st.session_state:
 def prompt_response(raw_prompt):
     print(f"running prompt_response")
     # Logic to generate a response string and object based on the prompt
-    response_string = "This is a placeholder response."
+    response_string = ""
     response_object = None
             
     # prompt = f"Fulfill this database query: {raw_prompt}. "
@@ -37,10 +37,7 @@ def prompt_response(raw_prompt):
     with PostgresAgentInstruments(DB_URL, session_id) as (agent_instruments, db):
         with PromptHandler(raw_prompt, agent_instruments, db) as executor:
             response = executor.execute()
-            response_string = f"""
-                Message: {response.last_message_str}
-                Tokens: {response.tokens}
-                Suggestion: {response.suggestions}"""
+            response_string = response
             response_object = np.random.randn(30, 3) if random.randint(1, 10) % 2 else None
     return response_string, response_object
 
@@ -144,4 +141,3 @@ if st.sidebar.button('Configure Assistant'):
     )
 st.sidebar.markdown("---")
 st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_html=True)
-
