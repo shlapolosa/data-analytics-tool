@@ -22,8 +22,8 @@ class ConversationResult:
     last_message_str: str
     error_message: str
     sql: str = ""
-    result: dict = field(default_factory=dict)
-    follow_up: List[dict] = field(default_factory=list)
+    result: dict = field(default_factory=dict)  # This will store the result as a dictionary
+    follow_up: List[Innovation] = field(default_factory=list)  # This will store a list of Innovation instances
     suggestions: List[str] = field(default_factory=list)
 
 
