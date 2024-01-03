@@ -66,23 +66,13 @@ def display_assistant_response(full_response, the_thing):
     # Create tabs for Response, SQL, Innovation, and Artifact
     tab1, tab2, tab3, tab4 = st.tabs(["Response", "SQL", "Innovation", "Artifact"])
     # Set the value of full_response to the Response tab
-    with tab1:
-        st.markdown(full_response.last_message_str, unsafe_allow_html=True)
-
-        # Check if full_response.result is a valid data structure for st.dataframe
-        if isinstance(full_response.result, (pd.DataFrame, pd.Series, pd.Index, np.ndarray, dict, list, set)):
-            result_data = pd.DataFrame(full_response.result)  # Convert to DataFrame if not already one
     with tab1:             
         st.markdown(full_response, unsafe_allow_html=True)
                                                                                          
         # Check if full_response.result is a valid data structure for st.dataframe
         if isinstance(full_response.result, (pd.DataFrame, pd.Series, pd.Index, np.ndarray, dict, list, set)):
             result_data = pd.DataFrame(full_response.result)  # Convert to DataFrame if not already one
-        st.markdown(full_response.last_message_str, unsafe_allow_html=True)
-
-        # Check if full_response.result is a valid data structure for st.dataframe
-        if isinstance(full_response['result'], (pd.DataFrame, pd.Series, pd.Index, np.ndarray, dict, list, set)):
-            result_data = pd.DataFrame(full_response['result'])  # Convert to DataFrame if not already one
+            
             # Display as DataFrame with new Streamlit 1.29.0 parameters
             with st.container():
                 st.dataframe(result_data, use_container_width=True)
