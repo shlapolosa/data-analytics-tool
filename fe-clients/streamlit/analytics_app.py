@@ -88,9 +88,7 @@ def display_assistant_response(full_response, the_thing):
         st.code(full_response.sql, language="sql", line_numbers=True)
     # Set the value of Innovation to the Innovation tab
     with tab3:
-        follow_up_data = json.loads(full_response.follow_up) if isinstance(full_response.follow_up, str) else full_response.follow_up
-        innovations = [Innovation(**item) for item in follow_up_data]
-        for innovation in innovations:
+        for innovation in full_response.follow_up:
             st.code(innovation.insight,language=None)
             st.write(innovation.actionable_business_value)
             st.code(innovation.sql, language="sql")
