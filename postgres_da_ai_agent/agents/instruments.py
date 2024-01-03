@@ -26,24 +26,6 @@ class AgentInstruments:
         """
         raise NotImplementedError
 
-    def populate_conversation_result(self, success: bool, messages: list, cost: float, tokens: int, last_message_str: str, error_message: str = "", sql: str = "", result: str = "", follow_up: str = "", suggestions: list = None) -> ConversationResult:
-        """
-        Populate a ConversationResult data structure with provided values.
-        """
-        if suggestions is None:
-            suggestions = []
-        return ConversationResult(
-            success=success,
-            messages=messages,
-            cost=cost,
-            tokens=tokens,
-            last_message_str=last_message_str,
-            error_message=error_message,
-            sql=sql,
-            result=result,
-            follow_up=follow_up,
-            suggestions=suggestions
-        )
     def make_agent_chat_file(self, team_name: str):
         return os.path.join(self.root_dir, f"agent_chats_{team_name}.json")
 
@@ -132,6 +114,30 @@ class PostgresAgentInstruments(AgentInstruments):
 
     # -------------------------- Agent Functions -------------------------- #
 
+    def populate_conversation_result(self):
+        """
+          Reads from the run_sql_results_file, sql_query_file and innovation_file to return                                             
+          the result and sql and innovation_ as a tuple. The population of these files happens                                         
+          async by the assistant tool functions and can only be read at the end                                        
+          of the process. TODO: move results to a db rather.   
+        """
+        # Read the SQL query results
+        with open(self.run_sql_results_file, 'r') as results_file:
+            result = results_file.read()
+
+        # Read the SQL query
+        with open(self.sql_query_file, 'r') as query_file:
+            sql = query_file.read()
+
+        # Initialize a list to hold the content of innovation files
+        innovation_contents = ''
+        # Loop through the innovation files and read their content
+        for i in range(self.innovation_index):
+            fname = self.get_file_path(f"{i}_innovation_file.json")
+            with open(fname, "r") as f:
+                innovation_contents = f.read()
+
+        return result, sql, innovation_contents
 
 
     def run_sql(self, sql: str) -> str:
@@ -195,4 +201,3 @@ class PostgresAgentInstruments(AgentInstruments):
                     return False, f"File {fname} is empty"
 
         return True, ""
-
