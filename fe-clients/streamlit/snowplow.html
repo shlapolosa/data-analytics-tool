@@ -19,6 +19,7 @@
         window.snowplow('trackPageView', '{{pageName}}');
         // Function to track custom user prompt submission event
         window.trackUserPromptSubmission = function(prompt) {
+            console.log('trackUserPromptSubmission called with prompt:', prompt);
             window.snowplow('trackStructEvent', {
                 category: 'UserInteraction',
                 action: 'PromptSubmission',
