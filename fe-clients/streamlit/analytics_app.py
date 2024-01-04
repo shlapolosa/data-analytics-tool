@@ -35,6 +35,14 @@ components.html(snowplow_html, height=0, width=0)
 if 'download_triggered' not in st.session_state:
     st.session_state.download_triggered = False
 
+def track_sidebar_interaction(interaction_type):
+    components.html(f"<script>window.trackSidebarInteraction('{interaction_type}');</script>", height=0, width=0)
+
+def track_tab_click():
+    selected_tab = st.session_state.tab_key
+    tab_name = ["Response", "SQL", "Innovation", "Artifact"][selected_tab]
+    components.html(f"<script>window.trackTabClick('{tab_name}');</script>", height=0, width=0)
+
 def prompt_response(raw_prompt):
     print(f"running prompt_response")
     # Logic to generate a response string and object based on the prompt
@@ -237,11 +245,5 @@ if st.sidebar.button('Configure Assistant'):
 st.sidebar.markdown("---")
 st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_html=True)
 
-def track_sidebar_interaction(interaction_type):
-    components.html(f"<script>window.trackSidebarInteraction('{interaction_type}');</script>", height=0, width=0)
 
 track_sidebar_interaction('sidebar_loaded')
-def track_tab_click():
-    selected_tab = st.session_state.tab_key
-    tab_name = ["Response", "SQL", "Innovation", "Artifact"][selected_tab]
-    components.html(f"<script>window.trackTabClick('{tab_name}');</script>", height=0, width=0)
