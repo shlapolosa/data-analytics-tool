@@ -77,7 +77,7 @@ def display_assistant_response(full_response, the_thing):
         full_response = json.loads(full_response)
 
     # Create tabs for Response, SQL, Innovation, and Artifact
-    tab1, tab2, tab3, tab4 = st.tabs(["Response", "SQL", "Innovation", "Artifact"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Response", "SQL", "Innovation", "Artifact"], on_change=track_tab_click, key="tab_key")
     # Set the value of full_response to the Response tab
     with tab1:             
         # Check if full_response.result is a string and parse it as JSON                                             
@@ -235,3 +235,7 @@ if st.sidebar.button('Configure Assistant'):
 st.sidebar.markdown("---")
 st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_html=True)
 
+def track_tab_click():
+    selected_tab = st.session_state.tab_key
+    tab_name = ["Response", "SQL", "Innovation", "Artifact"][selected_tab]
+    components.html(f"<script>window.trackTabClick('{tab_name}');</script>", height=0, width=0)
