@@ -19,11 +19,12 @@
         window.snowplow('trackPageView', '{{pageName}}');
         // Function to track custom user prompt submission event
         window.trackUserPromptSubmission = function(prompt) {
-            window.snowplow('trackSelfDescribingEvent', {
-                schema: 'iglu:com.example_company/submit_prompt/jsonschema/1-0-0',
-                data: {
-                    prompt: prompt
-                }
+            window.snowplow('trackStructEvent', {
+                category: 'UserInteraction',
+                action: 'PromptSubmission',
+                label: 'UserPrompt',
+                property: 'PromptText',
+                value: prompt
             });
         };
         // Function to track tab clicks
