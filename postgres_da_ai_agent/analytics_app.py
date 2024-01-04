@@ -123,6 +123,9 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    # Track the user prompt submission using Snowplow
+    components.html(f"<script>window.trackUserPromptSubmission({json.dumps(prompt)});</script>", height=0, width=0)
+
     # Generate assistant response and potentially a numpy array
     full_response, the_thing = prompt_response(prompt)
 
