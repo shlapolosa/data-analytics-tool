@@ -26,6 +26,24 @@
                 }
             });
         };
+        // Function to track tab clicks
+        window.trackTabClick = function(tabName) {
+            window.snowplow('trackSelfDescribingEvent', {
+                schema: 'iglu:com.example_company/tab_click/jsonschema/1-0-0',
+                data: {
+                    tabName: tabName
+                }
+            });
+        };
+        // Function to track sidebar interactions
+        window.trackSidebarInteraction = function(interactionType) {
+            window.snowplow('trackSelfDescribingEvent', {
+                schema: 'iglu:com.example_company/sidebar_interaction/jsonschema/1-0-0',
+                data: {
+                    interactionType: interactionType
+                }
+            });
+        };
         window.snowplow('addPlugin', 
           "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-debugger@latest/dist/index.umd.min.js",
           ["snowplowDebugger", "DebuggerPlugin"]
