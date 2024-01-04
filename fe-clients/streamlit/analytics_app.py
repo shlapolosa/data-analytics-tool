@@ -247,7 +247,7 @@ st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_ht
 
 
 track_sidebar_interaction('sidebar_loaded')
-    # Track tab clicks using JavaScript
-    tab_names = ["Response", "SQL", "Innovation", "Artifact"]
-    tab_click_script = f"<script>const tabs = document.getElementsByClassName('st-Tab');for (let i = 0; i < tabs.length; i++) {{tabs[i].addEventListener('click', function() {{window.trackTabClick('{tab_names[i]}')}});}}</script>"
-    components.html(tab_click_script, height=0, width=0)
+# Track tab clicks using JavaScript
+tab_names = ["Response", "SQL", "Innovation", "Artifact"]
+tab_click_script = f"<script>const tabs = document.getElementsByClassName('st-Tab');for (let i = 0; i < tabs.length; i++) {{tabs[i].addEventListener('click', function() {{window.trackTabClick('{tab_names[i]}')}});}}</script>"
+components.html(tab_click_script, height=0, width=0)
