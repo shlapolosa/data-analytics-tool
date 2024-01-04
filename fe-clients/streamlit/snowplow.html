@@ -16,7 +16,7 @@
 
         window.snowplow('enableActivityTracking', 10, 10);
         window.snowplow('enableLinkClickTracking');
-        window.snowplow('trackPageView');
+        window.snowplow('trackPageView', 'Custom Page Name');
         window.snowplow('addPlugin', 
           "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-debugger@latest/dist/index.umd.min.js",
           ["snowplowDebugger", "DebuggerPlugin"]
