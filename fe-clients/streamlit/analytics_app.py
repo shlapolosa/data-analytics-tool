@@ -26,6 +26,8 @@ snowplow_html_file = os.path.join(os.path.dirname(__file__), 'snowplow.html')
 # Read the HTML file
 with open(snowplow_html_file, 'r') as file:
     snowplow_html = file.read()
+    # Replace the placeholder with the actual page name
+    snowplow_html = snowplow_html.replace('{{pageName}}', 'Analytics App')
 
 # Embed the Snowplow HTML in your Streamlit app
 components.html(snowplow_html, height=0, width=0)
