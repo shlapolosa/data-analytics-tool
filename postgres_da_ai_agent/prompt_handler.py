@@ -510,6 +510,8 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
 
         return ConversationResult(success=True, messages=[], cost=0.0, tokens=0, last_message_str="", error_message="")
     def recommend_visualization(self, execution_results):
+        import pandas as pd
+
         # This method should contain the logic to analyze the execution_results
         # and determine the best visualization method, as well as prepare the data.
         # The following is a placeholder for the actual implementation.
@@ -517,23 +519,23 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
         # Placeholder logic for visualization recommendation
         if isinstance(execution_results, list) and all(isinstance(row, dict) for row in execution_results):
             # Assuming execution_results is a list of dictionaries representing rows of data
-            columns = execution_results[0].keys()
+            df = pd.DataFrame(execution_results)
+            columns = df.columns
             if "time" in columns or "date" in columns:
                 visualization_method = "line_chart"
+                prepared_data = df.set_index("time" if "time" in columns else "date")
             elif "category" in columns and "value" in columns:
                 visualization_method = "bar_chart"
-            else:
+                prepared_data = df.pivot(index='category', values='value', columns=df.columns.difference(['category', 'value']))
+            elif len(columns) >= 2:
                 visualization_method = "scatter_chart"
-
-            # Prepare the data for the chosen visualization method
-            # This is a simplified example of how the data might be prepared
-            prepared_data = {
-                "columns": list(columns),
-                "rows": [list(row.values()) for row in execution_results]
-            }
+                prepared_data = df
+            else:
+                visualization_method = "table"
+                prepared_data = df
         else:
-            visualization_method = "table"
-            prepared_data = {"rows": execution_results}
+            visualization_method = "text"
+            prepared_data = str(execution_results)
 
-        return visualization_method, prepared_data
+        return visualization_method, prepared_data.to_dict('list') if isinstance(prepared_data, pd.DataFrame) else prepared_data
 
