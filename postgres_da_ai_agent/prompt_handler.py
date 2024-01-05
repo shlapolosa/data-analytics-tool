@@ -416,6 +416,15 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
     def execute(self) -> ConversationResult:
         from crewai import Agent, Task, Crew, Process
 
+        # Define the Data Visualization Expert agent with its role and goal
+        data_visualisation_expert = Agent(
+            role='Data Visualization Expert',
+            goal='Recommend the best way to visualize the data and prepare it for the chosen visualization method.',
+            backstory="""As a Data Visualization Expert, you have an eye for design and a knack for presenting data in the most insightful and accessible ways. You're familiar with a variety of visualization tools and techniques.""",
+            verbose=True,
+            allow_delegation=True
+        )
+
         # Define the Data Innovator agent with its role and goal
         data_innovator = Agent(
             role='Data Innovator',
@@ -477,10 +486,18 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
             provides=["execution_results"]
         )
 
+        # Task for the Data Visualization Expert to recommend visualization method
+        recommend_visualization_task = Task(
+            description="Recommend the best way to visualize the data and prepare it for the chosen visualization method.",
+            action=lambda execution_results: self.recommend_visualization(execution_results),
+            requires=["execution_results"],
+            provides=["visualization_recommendation", "prepared_data"]
+        )
+
         # Create a crew with the agents and tasks
         data_crew = Crew(
-            agents=[scrum_master, data_engineer, data_analyst, data_innovator],
-            tasks=[assess_nlq_task, generate_sql_task, execute_sql_task]
+            agents=[scrum_master, data_engineer, data_analyst, data_innovator, data_visualisation_expert],
+            tasks=[assess_nlq_task, generate_sql_task, execute_sql_task, recommend_visualization_task]
         )
 
         # Execute the crew process
@@ -492,3 +509,31 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
         # Actual tasks, crew creation, and execution logic will depend on the specific requirements.
 
         return ConversationResult(success=True, messages=[], cost=0.0, tokens=0, last_message_str="", error_message="")
+    def recommend_visualization(self, execution_results):
+        # This method should contain the logic to analyze the execution_results
+        # and determine the best visualization method, as well as prepare the data.
+        # The following is a placeholder for the actual implementation.
+
+        # Placeholder logic for visualization recommendation
+        if isinstance(execution_results, list) and all(isinstance(row, dict) for row in execution_results):
+            # Assuming execution_results is a list of dictionaries representing rows of data
+            columns = execution_results[0].keys()
+            if "time" in columns or "date" in columns:
+                visualization_method = "line_chart"
+            elif "category" in columns and "value" in columns:
+                visualization_method = "bar_chart"
+            else:
+                visualization_method = "scatter_chart"
+
+            # Prepare the data for the chosen visualization method
+            # This is a simplified example of how the data might be prepared
+            prepared_data = {
+                "columns": list(columns),
+                "rows": [list(row.values()) for row in execution_results]
+            }
+        else:
+            visualization_method = "table"
+            prepared_data = {"rows": execution_results}
+
+        return visualization_method, prepared_data
+
