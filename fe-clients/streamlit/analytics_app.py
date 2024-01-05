@@ -204,7 +204,7 @@ if prompt := st.chat_input("What is up?"):
         st.markdown(prompt)
 
     # Track the user prompt submission using Snowplow
-    components.html(f"<script>window.trackUserPromptSubmission({json.dumps(prompt)});</script>", height=0, width=0)
+    # components.html(f"<script>window.trackUserPromptSubmission({json.dumps(prompt)});</script>", height=0, width=0)
 
     with st.chat_message("assistant"):
         with st.spinner("Processing..."):
@@ -243,13 +243,13 @@ if st.sidebar.button('Configure Assistant'):
         'Knowledge',
         type=['pdf', 'csv', 'txt']
     )
-    components.html(f"<script>window.trackSidebarInteraction('Configure Assistant');</script>", height=0, width=0)
+    # components.html(f"<script>window.trackSidebarInteraction('Configure Assistant');</script>", height=0, width=0)
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("<p align='center'>Made by the AI Team</p>", unsafe_allow_html=True)
 
 
-track_sidebar_interaction('sidebar_loaded')
+# track_sidebar_interaction('sidebar_loaded')
 # Track tab clicks using JavaScript
 tab_click_script = """
 <script>
@@ -262,4 +262,4 @@ for (let i = 0; i < tabs.length; i++) {
 }
 </script>
 """
-components.html(tab_click_script, height=0, width=0)
+# components.html(tab_click_script, height=0, width=0)

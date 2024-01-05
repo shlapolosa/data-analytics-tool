@@ -22,8 +22,3 @@ with open(snowplow_html_file, 'r') as file:
 # Embed the Snowplow HTML in your Streamlit app
 components.html(snowplow_html, height=0, width=0)
 
-components.html("""
-<script type="text/javascript">
-    window.snowplow('trackPageView', 'Marketing Insights');
-</script>
-""", height=0, width=0)

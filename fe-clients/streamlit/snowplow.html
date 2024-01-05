@@ -14,59 +14,59 @@
           platform: 'web',
         });
 
-        window.snowplow('enableActivityTracking', 10, 10);
-        window.snowplow('enableLinkClickTracking');
+        window.snowplow('enableActivityTracking', 1, 10);
+        // window.snowplow('enableLinkClickTracking');
         window.snowplow('trackPageView', '{{pageName}}');
         // Function to track custom user prompt submission event
-        window.trackUserPromptSubmission = function(prompt) {
-            console.log('trackUserPromptSubmission called with prompt:', prompt);
-            window.snowplow('trackStructEvent', {
-                category: 'UserInteraction',
-                action: 'PromptSubmission',
-                label: 'UserPrompt',
-                property: 'PromptText',
-                value: prompt
-            });
-        };
-        // Function to track tab clicks
-        window.trackTabClick = function(tabName) {
-            window.snowplow('trackSelfDescribingEvent', {
-                schema: 'iglu:com.example_company/tab_click/jsonschema/1-0-0',
-                data: {
-                    tabName: tabName
-                }
-            });
-        };
-        // Function to track sidebar interactions
-        window.trackSidebarInteraction = function(interactionType) {
-            window.snowplow('trackSelfDescribingEvent', {
-                schema: 'iglu:com.example_company/sidebar_interaction/jsonschema/1-0-0',
-                data: {
-                    interactionType: interactionType
-                }
-            });
-        };
-        window.snowplow('addPlugin', 
-          "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-debugger@latest/dist/index.umd.min.js",
-          ["snowplowDebugger", "DebuggerPlugin"]
-        );
-        window.snowplow('addPlugin', 
-          "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-error-tracking@latest/dist/index.umd.min.js",
-          ["snowplowErrorTracking", "ErrorTrackingPlugin"]
-        );
-        window.snowplow('addPlugin', 
-          "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-button-click-tracking@latest/dist/index.umd.min.js",
-          ["snowplowButtonClickTracking", "ButtonClickTrackingPlugin"]
-        );
-        window.snowplow('enableButtonClickTracking');
-        window.snowplow('addPlugin', 
-          "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-browser-features@latest/dist/index.umd.min.js",
-          ["snowplowBrowserFeatures", "BrowserFeaturesPlugin"]
-        );
-        window.snowplow('addPlugin',
-          "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-ga-cookies@latest/dist/index.umd.min.js",
-          ["snowplowGaCookies", "GaCookiesPlugin"]
-        );
+        // window.trackUserPromptSubmission = function(prompt) {
+        //     console.log('trackUserPromptSubmission called with prompt:', prompt);
+        //     window.snowplow('trackStructEvent', {
+        //         category: 'UserInteraction',
+        //         action: 'PromptSubmission',
+        //         label: 'UserPrompt',
+        //         property: 'PromptText',
+        //         value: prompt
+        //     });
+        // };
+        // // Function to track tab clicks
+        // window.trackTabClick = function(tabName) {
+        //     window.snowplow('trackSelfDescribingEvent', {
+        //         schema: 'iglu:com.example_company/tab_click/jsonschema/1-0-0',
+        //         data: {
+        //             tabName: tabName
+        //         }
+        //     });
+        // };
+        // // Function to track sidebar interactions
+        // window.trackSidebarInteraction = function(interactionType) {
+        //     window.snowplow('trackSelfDescribingEvent', {
+        //         schema: 'iglu:com.example_company/sidebar_interaction/jsonschema/1-0-0',
+        //         data: {
+        //             interactionType: interactionType
+        //         }
+        //     });
+        // };
+        // window.snowplow('addPlugin', 
+        //   "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-debugger@latest/dist/index.umd.min.js",
+        //   ["snowplowDebugger", "DebuggerPlugin"]
+        // );
+        // window.snowplow('addPlugin', 
+        //   "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-error-tracking@latest/dist/index.umd.min.js",
+        //   ["snowplowErrorTracking", "ErrorTrackingPlugin"]
+        // );
+        // window.snowplow('addPlugin', 
+        //   "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-button-click-tracking@latest/dist/index.umd.min.js",
+        //   ["snowplowButtonClickTracking", "ButtonClickTrackingPlugin"]
+        // );
+        // window.snowplow('enableButtonClickTracking');
+        // window.snowplow('addPlugin', 
+        //   "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-browser-features@latest/dist/index.umd.min.js",
+        //   ["snowplowBrowserFeatures", "BrowserFeaturesPlugin"]
+        // );
+        // window.snowplow('addPlugin',
+        //   "https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-ga-cookies@latest/dist/index.umd.min.js",
+        //   ["snowplowGaCookies", "GaCookiesPlugin"]
+        // );
     </script>
 </head>
 <body>
