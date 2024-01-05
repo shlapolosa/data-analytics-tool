@@ -441,6 +441,32 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
             allow_delegation=False
         )
 
+        # Task for the Data Engineer to generate initial SQL
+        generate_sql_task = Task(
+            description="Generate the initial SQL based on the requirements provided. Only generate the SQL if you have sufficient TABLE_DEFINITIONS to work with. When generating the SQL beware that the tables are in the 'atomic' schema.",
+            action=lambda table_definitions: f"SELECT * FROM atomic.{table_definitions} WHERE conditions;" if table_definitions else "Insufficient TABLE_DEFINITIONS.",
+            requires=[POSTGRES_TABLE_DEFINITIONS_CAP_REF],
+            provides=["initial_sql"]
+        )
+
+        # Task for the Sr Data Analyst to execute the SQL
+        execute_sql_task = Task(
+            description="Execute the SQL provided by the Data Engineer.",
+            action=lambda initial_sql: self.db.run_query(initial_sql) if initial_sql.startswith("SELECT") else "Invalid SQL.",
+            requires=["initial_sql"],
+            provides=["execution_results"]
+        )
+
+        # Create a crew with the agents and tasks
+        data_crew = Crew(
+            agents=[data_engineer, data_analyst, scrum_master],
+            tasks=[generate_sql_task, execute_sql_task]
+        )
+
+        # Execute the crew process
+        process = Process(crew=data_crew)
+        process.execute()
+
         # Logic to utilize the agents will be implemented here.
         # This is a placeholder to show where the agents would be used in the workflow.
         # Actual tasks, crew creation, and execution logic will depend on the specific requirements.
