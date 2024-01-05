@@ -416,6 +416,15 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
     def execute(self) -> ConversationResult:
         from crewai import Agent, Task, Crew, Process
 
+        # Define the Data Innovator agent with its role and goal
+        data_innovator = Agent(
+            role='Data Innovator',
+            goal="You're a data innovator. You analyze SQL databases table structure and generate 3 novel insights for your team to reflect on and query. Format your insights in JSON format.",
+            backstory="""As a Data Innovator, you have a unique ability to see beyond the data. You connect the dots between disparate pieces of information to generate new, valuable insights that can transform the way your team operates.""",
+            verbose=True,
+            allow_delegation=True
+        )
+
         # Task for the Scrum Master to assess if the prompt is a Natural Language Query (NLQ)
         assess_nlq_task = Task(
             description="Is the following block of text a SQL Natural Language Query (NLQ)? Please rank from 1 to 5.",
@@ -470,7 +479,7 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
 
         # Create a crew with the agents and tasks
         data_crew = Crew(
-            agents=[scrum_master, data_engineer, data_analyst],
+            agents=[scrum_master, data_engineer, data_analyst, data_innovator],
             tasks=[assess_nlq_task, generate_sql_task, execute_sql_task]
         )
 
