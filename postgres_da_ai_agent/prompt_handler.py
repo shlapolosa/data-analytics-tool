@@ -416,6 +416,17 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
     def execute(self) -> ConversationResult:
         from crewai import Agent, Task, Crew, Process
 
+        # Task for the Scrum Master to assess if the prompt is a Natural Language Query (NLQ)
+        assess_nlq_task = Task(
+            description="Is the following block of text a SQL Natural Language Query (NLQ)? Please rank from 1 to 5.",
+            action=lambda potential_nlq: int(
+                "{{#select \"rank\" logprobs='logprobs'}} 1{{or}} 2{{or}} 3{{or}} 4{{or}} 5{{/select}}"
+                .replace("{{potential_nlq}}", potential_nlq)
+            ),
+            requires=["potential_nlq"],
+            provides=["nlq_rank"]
+        )
+
         # Define the agents with roles and goals
         data_engineer = Agent(
             role='Data Engineer',
@@ -459,8 +470,8 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
 
         # Create a crew with the agents and tasks
         data_crew = Crew(
-            agents=[data_engineer, data_analyst, scrum_master],
-            tasks=[generate_sql_task, execute_sql_task]
+            agents=[scrum_master, data_engineer, data_analyst],
+            tasks=[assess_nlq_task, generate_sql_task, execute_sql_task]
         )
 
         # Execute the crew process
