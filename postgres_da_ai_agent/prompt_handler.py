@@ -408,3 +408,11 @@ class PromptHandler:
 
         return int(gate_orchestrator.last_message_str)
         # return 5
+class CrewAIDataAnalystPromptExecutor(PromptExecutor):
+    def __init__(self, prompt: str, db: PostgresManager, agent_instruments):
+        super().__init__(prompt, agent_instruments)
+        self.db = db
+
+    def execute(self) -> ConversationResult:
+        # Logic specific to CrewAIDataAnalystPromptExecutor will be implemented here.
+        pass
