@@ -27,6 +27,10 @@ class CrewBuilder:
             role='Data Analyst',
             goal='Analyze data to help inform business decisions',
             backstory="""As a Data Analyst, you have a sharp eye for detail and a passion for deciphering data puzzles. You excel at turning data into meaningful insights and actionable recommendations.""",
+            tools=[
+                self.run_sql,
+                self.get_table_definitions
+            ],
             verbose=True,
             allow_delegation=True
         )
