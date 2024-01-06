@@ -153,6 +153,17 @@ class CrewBuilder:
 
         Returns:
             str: A JSON string representing the query results.
+        Tool to execute a SQL query against the database.
+
+        This function takes a SQL query string, executes it against the database using the
+        PostgresManager instance available in the agent instruments, and returns the results
+        as a JSON string.
+
+        Args:
+            sql (str): The SQL query string to be executed.
+
+        Returns:
+            str: The results of the SQL query in JSON format.
         """
         self.agent_instruments.db.cur.execute(sql)
         columns = [desc[0] for desc in self.agent_instruments.db.cur.description]
@@ -167,6 +178,14 @@ class CrewBuilder:
     @tool("Retrieves similar table definitions for a given prompt.")
     def get_table_definitions(self) -> str:
         """
+        Tool to retrieve table definitions similar to the given prompt.
+
+        This function uses the DatabaseEmbedder to find and return table definitions that
+        are likely to be relevant to the prompt provided to the CrewBuilder. The table
+        definitions are returned as a string.
+
+        Returns:
+            str: A string containing the similar table definitions.
         Retrieves table definitions that are similar to the current prompt.
 
         This method uses the DatabaseEmbedder to find table definitions that are likely
