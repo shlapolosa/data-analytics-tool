@@ -32,6 +32,7 @@ def store_fact(fact: str):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--prompt", help="The prompt for the AI")
+    parser.add_argument("--executor", default="CrewAI", help="The executor for handling the prompt")
     args = parser.parse_args()
 
     if not args.prompt:
@@ -49,7 +50,7 @@ def main():
     session_id = rand.generate_session_id(assistant_name + raw_prompt)
 
     with PostgresAgentInstruments(DB_URL, session_id) as (agent_instruments, db):
-        with PromptHandler(raw_prompt, agent_instruments, db) as executor:
+        with PromptHandler(raw_prompt, agent_instruments, db, args.executor) as executor:
             return executor.execute()
 
 
