@@ -145,6 +145,15 @@ class CrewBuilder:
     @tool("Executes a given SQL query string against the database.")
     def run_sql(self, sql: str) -> str:
         """
+        Executes a given SQL query string against the database and returns the results in JSON format.
+
+        Args:
+            sql (str): The SQL query string to be executed.
+
+        Returns:
+            str: A JSON string representing the query results.
+        """
+        """
         Run a SQL query against the postgres database
         Executes a SQL query against the database and returns the results in JSON format.
 
@@ -178,6 +187,15 @@ class CrewBuilder:
     @tool("Retrieves similar table definitions for a given prompt.")
     def get_table_definitions(self) -> str:
         """
+        Retrieves table definitions that are similar to the current prompt.
+
+        This method uses the DatabaseEmbedder to find table definitions that are likely
+        to be relevant to the prompt provided to the CrewBuilder.
+
+        Returns:
+            str: A string containing the similar table definitions.
+        """
+        """
         Tool to retrieve table definitions similar to the given prompt.
 
         This function uses the DatabaseEmbedder to find and return table definitions that
@@ -201,6 +219,18 @@ class CrewBuilder:
 
     @tool("Recommends the best way to visualize the data and prepares it for the chosen visualization method.")
     def recommend_visualization(self, execution_results):
+        """
+        Recommends the best way to visualize the data and prepares it for the chosen visualization method.
+
+        This method analyzes the execution results and determines the best visualization method,
+        as well as prepares the data for visualization.
+
+        Args:
+            execution_results: The results of the SQL query execution.
+
+        Returns:
+            tuple: A tuple containing the recommended visualization method and the prepared data.
+        """
         import pandas as pd
 
         # This method should contain the logic to analyze the execution_results
