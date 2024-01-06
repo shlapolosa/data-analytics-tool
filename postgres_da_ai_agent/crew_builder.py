@@ -37,7 +37,7 @@ class CrewBuilder:
 
         self.scrum_master = Agent(
             role='Scrum Master',
-            goal='Facilitate the team's Agile practices and processes',
+            goal="Facilitate the team's Agile practices and processes",
             backstory="""You are the Scrum Master, the team's coach, and facilitator. Your primary goal is to ensure that the team adheres to Agile practices and works efficiently towards their goals.""",
             verbose=True,
             allow_delegation=False
