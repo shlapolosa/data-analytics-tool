@@ -68,7 +68,9 @@ class CrewBuilder:
     def create_assess_nlq_task(self):
         # Task for the Scrum Master to assess if the prompt is a Natural Language Query (NLQ)
         self.assess_nlq_task = Task(
-            description="Is the following block of text a SQL Natural Language Query (NLQ)? Please rank from 1 to 5.",
+            description="""
+            Is the following block of text a SQL Natural Language Query (NLQ)? Please rank from 1 to 5.
+            """,
             agent=self.scrum_master
         )
         self.tasks.append(self.assess_nlq_task)
