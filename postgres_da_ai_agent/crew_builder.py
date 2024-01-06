@@ -1,5 +1,6 @@
 from crewai import Agent, Task, Crew, Process
 from langchain.tools import tool
+import json
 
 class CrewBuilder:
     def __init__(self):
@@ -7,6 +8,7 @@ class CrewBuilder:
         self.tasks = []
         self.crew = None
         self.process = None
+        self.agent_instruments = None  # Property of type PostgresAgentInstruments
 
     def create_agents(self):
         # Define the agents with roles and goals
