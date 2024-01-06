@@ -137,10 +137,10 @@ class CrewBuilder:
         return json_result
 
     @tool("Retrieves similar table definitions for a given prompt.")
-    def get_table_definitions(self) -> str:
+    def get_table_definitions(self, prompt: str) -> str:
         """
         Retrieve similar table definitions based on the current prompt.
         """
         database_embedder = DatabaseEmbedder(self.agent_instruments.db)
-        table_definitions = database_embedder.get_similar_table_defs_for_prompt(self.prompt)
+        table_definitions = database_embedder.get_similar_table_defs_for_prompt(prompt)
         return table_definitions
