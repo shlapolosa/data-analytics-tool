@@ -1,6 +1,7 @@
 from crewai import Agent, Task, Crew, Process
 from langchain.tools import tool
 from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
+from postgres_da_ai_agent.modules.embeddings import DatabaseEmbedder
 import json
 
 class CrewBuilder:
@@ -134,3 +135,12 @@ class CrewBuilder:
         json_result = json.dumps(list_of_dicts, indent=4, default=self.agent_instruments.datetime_handler)
 
         return json_result
+
+    @tool("Retrieves similar table definitions for a given prompt.")
+    def get_table_definitions(self) -> str:
+        """
+        Retrieve similar table definitions based on the current prompt.
+        """
+        database_embedder = DatabaseEmbedder(self.agent_instruments.db)
+        table_definitions = database_embedder.get_similar_table_defs_for_prompt(self.prompt)
+        return table_definitions
