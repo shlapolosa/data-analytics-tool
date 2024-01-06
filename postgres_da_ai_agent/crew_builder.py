@@ -139,7 +139,7 @@ class CrewBuilder:
     
     
     @tool("Executes a given SQL query string against the database.")
-    def run_sql(self, sql: str) -> str:
+    def run_sql(sql: str) -> str:
         """
         Executes a given SQL query string against the database and returns the results in JSON format.
 
@@ -160,7 +160,7 @@ class CrewBuilder:
         return json_result
 
     @tool("Retrieves similar table definitions for a given prompt.")
-    def get_table_definitions(self) -> str:
+    def get_table_definitions(prompt) -> str:
         """
         Retrieves table definitions that are similar to the current prompt.
 
@@ -170,16 +170,21 @@ class CrewBuilder:
         Returns:
             str: A string containing the similar table definitions.
         """
+        from postgres_da_ai_agent.modules.db import PostgresManager
         from dotenv import load_dotenv
+        from postgres_da_ai_agent.crew_builder import get_db_manager
         load_dotenv()
         import os
-        db_manager = self._get_db_manager()
+    
+        db_manager = get_db_manager()
         database_embedder = DatabaseEmbedder(db_manager)
-        table_definitions = database_embedder.get_similar_table_defs_for_prompt(self.prompt)
+        print(f" the prompt in get_table_definitions is: {prompt}")
+
+        table_definitions = database_embedder.get_similar_table_defs_for_prompt(prompt)
         return table_definitions
 
     @tool("Recommends the best way to visualize the data and prepares it for the chosen visualization method.")
-    def recommend_visualization(self, execution_results):
+    def recommend_visualization(execution_results):
         """
         Recommends the best way to visualize the data and prepares it for the chosen visualization method.
 
@@ -219,13 +224,16 @@ class CrewBuilder:
             visualization_method = "text"
             prepared_data = str(execution_results)
 
-        return visualization_method, prepared_data.to_dict('list') if isinstance(prepared_data, pd.DataFrame) else prepared_data    def _get_db_manager(self):
+        return visualization_method, prepared_data.to_dict('list') if isinstance(prepared_data, pd.DataFrame) else prepared_data    
+    
+    def get_db_manager():
         """
         Creates an instance of PostgresManager and connects to the database using the DATABASE_URL from the environment.
 
         Returns:
             PostgresManager: An instance of the PostgresManager connected to the database.
         """
+        from postgres_da_ai_agent.modules.db import PostgresManager
         from dotenv import load_dotenv
         load_dotenv()
         import os
