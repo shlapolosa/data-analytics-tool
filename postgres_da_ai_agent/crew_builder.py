@@ -5,12 +5,13 @@ from postgres_da_ai_agent.modules.embeddings import DatabaseEmbedder
 import json
 
 class CrewBuilder:
-    def __init__(self, agent_instruments: PostgresAgentInstruments):
+    def __init__(self, agent_instruments: PostgresAgentInstruments, prompt: str):
         self.agents = []
         self.tasks = []
         self.crew = None
         self.process = None
         self.agent_instruments = agent_instruments  # Property of type PostgresAgentInstruments
+        self.prompt = prompt  # The prompt for the CrewBuilder
 
     def create_agents(self):
         # Define the agents with roles and goals
@@ -139,10 +140,10 @@ class CrewBuilder:
         return json_result
 
     @tool("Retrieves similar table definitions for a given prompt.")
-    def get_table_definitions(self, prompt: str) -> str:
+    def get_table_definitions(self) -> str:
         """
         Retrieve similar table definitions based on the current prompt.
         """
         database_embedder = DatabaseEmbedder(self.agent_instruments.db)
-        table_definitions = database_embedder.get_similar_table_defs_for_prompt(prompt)
+        table_definitions = database_embedder.get_similar_table_defs_for_prompt(self.prompt)
         return table_definitions
