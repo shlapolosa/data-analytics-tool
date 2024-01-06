@@ -64,12 +64,7 @@ class CrewBuilder:
         # Task for the Scrum Master to assess if the prompt is a Natural Language Query (NLQ)
         self.assess_nlq_task = Task(
             description="Is the following block of text a SQL Natural Language Query (NLQ)? Please rank from 1 to 5.",
-            action=lambda potential_nlq: int(
-                "{{#select \"rank\" logprobs='logprobs'}} 1{{or}} 2{{or}} 3{{or}} 4{{or}} 5{{/select}}"
-                .replace("{{potential_nlq}}", potential_nlq)
-            ),
-            requires=["potential_nlq"],
-            provides=["nlq_rank"]
+            agent=self.scrum_master
         )
         self.tasks.append(self.assess_nlq_task)
         return self
@@ -78,9 +73,7 @@ class CrewBuilder:
         # Task for the Data Engineer to generate initial SQL
         self.generate_sql_task = Task(
             description="Generate the initial SQL based on the requirements provided. Only generate the SQL if you have sufficient TABLE_DEFINITIONS to work with. When generating the SQL beware that the tables are in the 'atomic' schema.",
-            action=lambda table_definitions: f"SELECT * FROM atomic.{table_definitions} WHERE conditions;" if table_definitions else "Insufficient TABLE_DEFINITIONS.",
-            requires=["TABLE_DEFINITIONS"],
-            provides=["initial_sql"]
+            agent=self.data_engineer
         )
         self.tasks.append(self.generate_sql_task)
         return self
@@ -89,9 +82,7 @@ class CrewBuilder:
         # Task for the Data Analyst to execute the SQL
         self.execute_sql_task = Task(
             description="Execute the SQL provided by the Data Engineer.",
-            action=lambda initial_sql: "SQL executed successfully." if initial_sql.startswith("SELECT") else "Invalid SQL.",
-            requires=["initial_sql"],
-            provides=["execution_results"]
+            agent=self.data_analyst
         )
         self.tasks.append(self.execute_sql_task)
         return self
@@ -100,9 +91,7 @@ class CrewBuilder:
         # Task for the Data Visualization Expert to recommend visualization method
         self.recommend_visualization_task = Task(
             description="Recommend the best way to visualize the data and prepare it for the chosen visualization method.",
-            action=lambda execution_results: ("visualization_method", "prepared_data"),
-            requires=["execution_results"],
-            provides=["visualization_recommendation", "prepared_data"]
+            agent=self.data_visualisation_expert
         )
         self.tasks.append(self.recommend_visualization_task)
         return self
