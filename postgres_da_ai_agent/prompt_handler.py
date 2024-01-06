@@ -414,101 +414,23 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
         self.db = db
 
     def execute(self) -> ConversationResult:
-        from crewai import Agent, Task, Crew, Process
+        # Create a CrewBuilder instance
+        crew_builder = CrewBuilder(self.agent_instruments, self.prompt)
 
-        # Define the Data Visualization Expert agent with its role and goal
-        data_visualisation_expert = Agent(
-            role='Data Visualization Expert',
-            goal='Recommend the best way to visualize the data and prepare it for the chosen visualization method.',
-            backstory="""As a Data Visualization Expert, you have an eye for design and a knack for presenting data in the most insightful and accessible ways. You're familiar with a variety of visualization tools and techniques.""",
-            verbose=True,
-            allow_delegation=True
-        )
-
-        # Define the Data Innovator agent with its role and goal
-        data_innovator = Agent(
-            role='Data Innovator',
-            goal="You're a data innovator. You analyze SQL databases table structure and generate 3 novel insights for your team to reflect on and query. Format your insights in JSON format.",
-            backstory="""As a Data Innovator, you have a unique ability to see beyond the data. You connect the dots between disparate pieces of information to generate new, valuable insights that can transform the way your team operates.""",
-            verbose=True,
-            allow_delegation=True
-        )
-
-        # Task for the Scrum Master to assess if the prompt is a Natural Language Query (NLQ)
-        assess_nlq_task = Task(
-            description="Is the following block of text a SQL Natural Language Query (NLQ)? Please rank from 1 to 5.",
-            action=lambda potential_nlq: int(
-                "{{#select \"rank\" logprobs='logprobs'}} 1{{or}} 2{{or}} 3{{or}} 4{{or}} 5{{/select}}"
-                .replace("{{potential_nlq}}", potential_nlq)
-            ),
-            requires=["potential_nlq"],
-            provides=["nlq_rank"]
-        )
-
-        # Define the agents with roles and goals
-        data_engineer = Agent(
-            role='Data Engineer',
-            goal='Prepare and transform data for analytical or operational uses',
-            backstory="""You are a meticulous Data Engineer responsible for building and maintaining the data architecture of the company. Your expertise in data modeling, ETL processes, and data warehousing is unparalleled.""",
-            verbose=True,
-            allow_delegation=True
-        )
-
-        data_analyst = Agent(
-            role='Data Analyst',
-            goal='Analyze data to help inform business decisions',
-            backstory="""As a Data Analyst, you have a sharp eye for detail and a passion for deciphering data puzzles. You excel at turning data into meaningful insights and actionable recommendations.""",
-            verbose=True,
-            allow_delegation=True
-        )
-
-        scrum_master = Agent(
-            role='Scrum Master',
-            goal='Facilitate the team's Agile practices and processes',
-            backstory="""You are the Scrum Master, the team's coach, and facilitator. Your primary goal is to ensure that the team adheres to Agile practices and works efficiently towards their goals.""",
-            verbose=True,
-            allow_delegation=False
-        )
-
-        # Task for the Data Engineer to generate initial SQL
-        generate_sql_task = Task(
-            description="Generate the initial SQL based on the requirements provided. Only generate the SQL if you have sufficient TABLE_DEFINITIONS to work with. When generating the SQL beware that the tables are in the 'atomic' schema.",
-            action=lambda table_definitions: f"SELECT * FROM atomic.{table_definitions} WHERE conditions;" if table_definitions else "Insufficient TABLE_DEFINITIONS.",
-            requires=[POSTGRES_TABLE_DEFINITIONS_CAP_REF],
-            provides=["initial_sql"]
-        )
-
-        # Task for the Sr Data Analyst to execute the SQL
-        execute_sql_task = Task(
-            description="Execute the SQL provided by the Data Engineer.",
-            action=lambda initial_sql: self.db.run_query(initial_sql) if initial_sql.startswith("SELECT") else "Invalid SQL.",
-            requires=["initial_sql"],
-            provides=["execution_results"]
-        )
-
-        # Task for the Data Visualization Expert to recommend visualization method
-        recommend_visualization_task = Task(
-            description="Recommend the best way to visualize the data and prepare it for the chosen visualization method.",
-            action=lambda execution_results: self.recommend_visualization(execution_results),
-            requires=["execution_results"],
-            provides=["visualization_recommendation", "prepared_data"]
-        )
-
-        # Create a crew with the agents and tasks
-        data_crew = Crew(
-            agents=[scrum_master, data_engineer, data_analyst, data_innovator, data_visualisation_expert],
-            tasks=[assess_nlq_task, generate_sql_task, execute_sql_task, recommend_visualization_task]
-        )
+        # Build the crew with the necessary tasks
+        crew_builder.create_agents() \
+                    .create_get_table_definitions_task() \
+                    .create_generate_sql_task() \
+                    .create_execute_sql_task() \
+                    .create_recommend_visualization_task() \
+                    .create_crew() \
+                    .create_process()
 
         # Execute the crew process
-        process = Process(crew=data_crew)
-        process.execute()
+        crew_builder.execute()
 
-        # Logic to utilize the agents will be implemented here.
-        # This is a placeholder to show where the agents would be used in the workflow.
-        # Actual tasks, crew creation, and execution logic will depend on the specific requirements.
-
-        return ConversationResult(success=True, messages=[], cost=0.0, tokens=0, last_message_str="", error_message="")
+        # Return the result of the execution
+        return crew_builder.process.result
     def recommend_visualization(self, execution_results):
         import pandas as pd
 
