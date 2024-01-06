@@ -365,10 +365,11 @@ class AssistantApiPromptExecutor(AutogenDataAnalystPromptExecutor):
         return self.conversation_result
 
 class PromptHandler:
-    def __init__(self, prompt: str, agent_instruments, db: PostgresManager):
+    def __init__(self, prompt: str, agent_instruments, db: PostgresManager, executor: str):
         self.prompt = prompt
         self.agent_instruments = agent_instruments
         self.db = db
+        self.executor = executor
 
     def __enter__(self) -> PromptExecutor:
         return self.assess_prompt(self.db)
@@ -382,16 +383,15 @@ class PromptHandler:
             case 1 | 2:
                 return InformationalPromptExecutor(self.prompt, self.agent_instruments, "SQL_Analyst")
             case 3 | 4 | 5:
-                from dotenv import load_dotenv
-
-                # Assuming the .env file is at the root of the project
-                dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.env')
-                load_dotenv(dotenv_path, verbose=True)
-                print("OPENAI_API_KEY "+os.getenv("OPENAI_API_KEY"))
-                if False :                                                                                                                        
-                    return AutogenDataAnalystPromptExecutor(self.prompt, db, self.agent_instruments)                                                                                            
-                else:                                                                                                                                                                       
-                    return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, nlq_confidence)
+                match self.executor:
+                    case "AssistantAPI":
+                        return AssistantApiPromptExecutor(self.prompt, self.agent_instruments, "Turbo4", db, nlq_confidence)
+                    case "Autogen":
+                        return AutogenDataAnalystPromptExecutor(self.prompt, db, self.agent_instruments)
+                    case "CrewAI":
+                        return CrewAIDataAnalystPromptExecutor(self.prompt, db, self.agent_instruments)
+                    case _:
+                        raise ValueError(f"Unknown executor type: {self.executor}")
 
 
     def _prompt_confidence(self) -> int:
