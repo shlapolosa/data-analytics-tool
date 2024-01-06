@@ -1,5 +1,6 @@
 from crewai import Agent, Task, Crew, Process
 from langchain.tools import tool
+from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
 import json
 
 class CrewBuilder:
@@ -8,7 +9,7 @@ class CrewBuilder:
         self.tasks = []
         self.crew = None
         self.process = None
-        self.agent_instruments = None  # Property of type PostgresAgentInstruments
+        self.agent_instruments = PostgresAgentInstruments()  # Property of type PostgresAgentInstruments
 
     def create_agents(self):
         # Define the agents with roles and goals
@@ -118,6 +119,16 @@ class CrewBuilder:
             self.process.execute()
         return self
     @tool("Executes a given SQL query string against the database.")
-    def run_sql(self, sql: str):
-        # Placeholder for SQL execution logic
-        pass
+    def run_sql(self, sql: str) -> str:
+        """
+        Run a SQL query against the postgres database
+        """
+        self.agent_instruments.db.cur.execute(sql)
+        columns = [desc[0] for desc in self.agent_instruments.db.cur.description]
+        res = self.agent_instruments.db.cur.fetchall()
+
+        list_of_dicts = [dict(zip(columns, row)) for row in res]
+
+        json_result = json.dumps(list_of_dicts, indent=4, default=self.agent_instruments.datetime_handler)
+
+        return json_result
