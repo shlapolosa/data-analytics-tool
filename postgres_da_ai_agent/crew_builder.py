@@ -114,10 +114,12 @@ class CrewBuilder:
         return self
 
     def create_crew(self):
-        # Create a crew with the agents and tasks
+        # Instantiate your crew with a sequential process
         self.crew = Crew(
             agents=self.agents,
-            tasks=self.tasks
+            tasks=self.tasks,
+            verbose=2,  # Crew verbose mode
+            process=Process.sequential  # Sequential process
         )
         return self
 
@@ -136,9 +138,8 @@ class CrewBuilder:
         return self
 
     def execute(self):
-        # Execute the crew process
-        if self.process:
-            self.process.execute()
+        # Get your crew to work!
+        result = self.crew.kickoff() if self.crew else None
         return self
     
     
