@@ -173,9 +173,7 @@ class CrewBuilder:
         from dotenv import load_dotenv
         load_dotenv()
         import os
-
-        db_manager = PostgresManager()
-        db_manager.connect_with_url(os.environ['DATABASE_URL'])
+        db_manager = self._get_db_manager()
         database_embedder = DatabaseEmbedder(db_manager)
         table_definitions = database_embedder.get_similar_table_defs_for_prompt(self.prompt)
         return table_definitions
@@ -221,4 +219,17 @@ class CrewBuilder:
             visualization_method = "text"
             prepared_data = str(execution_results)
 
-        return visualization_method, prepared_data.to_dict('list') if isinstance(prepared_data, pd.DataFrame) else prepared_data
+        return visualization_method, prepared_data.to_dict('list') if isinstance(prepared_data, pd.DataFrame) else prepared_data    def _get_db_manager(self):
+        """
+        Creates an instance of PostgresManager and connects to the database using the DATABASE_URL from the environment.
+
+        Returns:
+            PostgresManager: An instance of the PostgresManager connected to the database.
+        """
+        from dotenv import load_dotenv
+        load_dotenv()
+        import os
+
+        db_manager = PostgresManager()
+        db_manager.connect_with_url(os.environ['DATABASE_URL'])
+        return db_manager
