@@ -2,6 +2,7 @@ from crewai import Agent, Task, Crew, Process
 from langchain.tools import tool
 from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
 from postgres_da_ai_agent.modules.embeddings import DatabaseEmbedder
+from textwrap import dedent
 import json
 
 class CrewBuilder:
@@ -123,10 +124,10 @@ class CrewBuilder:
         )
         return self
 
-    def create_get_table_definitions_task(self):
+    def create_get_table_definitions_task(self, prompt):
         # Task for the Data Analyst to get the table definitions
         self.get_table_definitions_task = Task(
-            description="Retrieve the table definitions relevant to the current prompt.",
+            description=dedent(f"""Retrieve the table definitions relevant to the current prompt. given the following prompt: {prompt}"""),
             agent=self.data_analyst
         )
         self.tasks.append(self.get_table_definitions_task)
