@@ -118,6 +118,8 @@ class CrewBuilder:
         if self.process:
             self.process.execute()
         return self
+    
+    
     @tool("Executes a given SQL query string against the database.")
     def run_sql(self, sql: str) -> str:
         """
