@@ -170,7 +170,8 @@ class CrewBuilder:
         Returns:
             str: A string containing the similar table definitions.
         """
-        from postgres_da_ai_agent.modules.db import PostgresManager
+        from dotenv import load_dotenv
+        load_dotenv()
         import os
 
         db_manager = PostgresManager()
