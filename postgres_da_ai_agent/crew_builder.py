@@ -20,7 +20,7 @@ class CrewBuilder:
             goal='Prepare and transform data for analytical or operational uses',
             backstory="""You are a meticulous Data Engineer responsible for building and maintaining the data architecture of the company. Your expertise in data modeling, ETL processes, and data warehousing is unparalleled.""",
             verbose=True,
-            allow_delegation=True
+            allow_delegation=False
         )
 
         self.data_analyst = Agent(
@@ -32,7 +32,7 @@ class CrewBuilder:
                 self.get_table_definitions
             ],
             verbose=True,
-            allow_delegation=True
+            allow_delegation=False
         )
 
         self.scrum_master = Agent(
@@ -51,7 +51,7 @@ class CrewBuilder:
                 self.recommend_visualization
             ],
             verbose=True,
-            allow_delegation=True
+            allow_delegation=False
         )
 
 
@@ -60,7 +60,7 @@ class CrewBuilder:
             goal="You're a data innovator. You analyze SQL databases table structure and generate 3 novel insights for your team to reflect on and query. Format your insights in JSON format.",
             backstory="""As a Data Innovator, you have a unique ability to see beyond the data. You connect the dots between disparate pieces of information to generate new, valuable insights that can transform the way your team operates.""",
             verbose=True,
-            allow_delegation=True
+            allow_delegation=False
         )
 
         # Add the agents to the list
