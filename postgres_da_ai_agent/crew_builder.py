@@ -112,6 +112,15 @@ class CrewBuilder:
         )
         return self
 
+    def create_get_table_definitions_task(self):
+        # Task for the Data Analyst to get the table definitions
+        self.get_table_definitions_task = Task(
+            description="Retrieve the table definitions relevant to the current prompt.",
+            agent=self.data_analyst
+        )
+        self.tasks.append(self.get_table_definitions_task)
+        return self
+
     def create_process(self):
         # Create the process with the crew
         self.process = Process(crew=self.crew)
