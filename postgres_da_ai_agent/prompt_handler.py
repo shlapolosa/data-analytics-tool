@@ -1,11 +1,12 @@
 from typing import List
 from postgres_da_ai_agent.types import TurboTool
-from postgres_da_ai_agent.agents.turbo4 import Turbo4
-from postgres_da_ai_agent.modules import llm
-from postgres_da_ai_agent.modules import embeddings
-from postgres_da_ai_agent.modules.db import PostgresManager
-from postgres_da_ai_agent.agents import agents
-from postgres_da_ai_agent.types import ConversationResult
+from agents.turbo4 import Turbo4
+from modules import llm
+from modules.embeddings import DatabaseEmbedder
+from modules.db import PostgresManager
+from agents import agents
+from types import ConversationResult
+from crew_builder import CrewBuilder
 import os
 
 POSTGRES_TABLE_DEFINITIONS_CAP_REF = "TABLE_DEFINITIONS"
