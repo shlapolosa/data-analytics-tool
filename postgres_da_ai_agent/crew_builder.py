@@ -170,7 +170,12 @@ class CrewBuilder:
         Returns:
             str: A string containing the similar table definitions.
         """
-        database_embedder = DatabaseEmbedder(self.agent_instruments.db)
+        from postgres_da_ai_agent.modules.db import PostgresManager
+        import os
+
+        db_manager = PostgresManager()
+        db_manager.connect_with_url(os.environ['DATABASE_URL'])
+        database_embedder = DatabaseEmbedder(db_manager)
         table_definitions = database_embedder.get_similar_table_defs_for_prompt(self.prompt)
         return table_definitions
 
