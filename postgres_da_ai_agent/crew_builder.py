@@ -132,14 +132,8 @@ class CrewBuilder:
         self.tasks.append(self.get_table_definitions_task)
         return self
 
-    def create_process(self):
-        # Create the process with the crew
-        self.process = Process(crew=self.crew)
-        return self
-
     def execute(self):
-        # Get your crew to work!
-        result = self.crew.kickoff() if self.crew else None
+        self.crew.kickoff() if self.crew else None
         return self
     
     
