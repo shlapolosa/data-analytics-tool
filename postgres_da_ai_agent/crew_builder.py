@@ -146,6 +146,13 @@ class CrewBuilder:
     def run_sql(self, sql: str) -> str:
         """
         Run a SQL query against the postgres database
+        Executes a SQL query against the database and returns the results in JSON format.
+
+        Args:
+            sql (str): The SQL query string to be executed.
+
+        Returns:
+            str: A JSON string representing the query results.
         """
         self.agent_instruments.db.cur.execute(sql)
         columns = [desc[0] for desc in self.agent_instruments.db.cur.description]
@@ -160,6 +167,13 @@ class CrewBuilder:
     @tool("Retrieves similar table definitions for a given prompt.")
     def get_table_definitions(self) -> str:
         """
+        Retrieves table definitions that are similar to the current prompt.
+
+        This method uses the DatabaseEmbedder to find table definitions that are likely
+        to be relevant to the prompt provided to the CrewBuilder.
+
+        Returns:
+            str: A string containing the similar table definitions.
         Retrieve similar table definitions based on the current prompt.
         """
         database_embedder = DatabaseEmbedder(self.agent_instruments.db)
