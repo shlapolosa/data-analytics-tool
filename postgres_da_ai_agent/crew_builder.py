@@ -50,6 +50,7 @@ class CrewBuilder:
             verbose=True,
             allow_delegation=True
         )
+        self.data_visualisation_expert.tools.append(self.recommend_visualization)
 
         self.data_innovator = Agent(
             role='Data Innovator',
