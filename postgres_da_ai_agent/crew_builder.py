@@ -51,6 +51,7 @@ class CrewBuilder:
             allow_delegation=True
         )
         self.data_visualisation_expert.tools.append(self.recommend_visualization)
+        self.data_visualisation_expert.tools.append(self.recommend_visualization)
 
         self.data_innovator = Agent(
             role='Data Innovator',
@@ -71,6 +72,36 @@ class CrewBuilder:
 
         return self
 
+    @tool("Recommends the best way to visualize the data and prepares it for the chosen visualization method.")
+    def recommend_visualization(self, execution_results):
+        import pandas as pd
+
+        # This method should contain the logic to analyze the execution_results
+        # and determine the best visualization method, as well as prepare the data.
+        # The following is a placeholder for the actual implementation.
+
+        # Placeholder logic for visualization recommendation
+        if isinstance(execution_results, list) and all(isinstance(row, dict) for row in execution_results):
+            # Assuming execution_results is a list of dictionaries representing rows of data
+            df = pd.DataFrame(execution_results)
+            columns = df.columns
+            if "time" in columns or "date" in columns:
+                visualization_method = "line_chart"
+                prepared_data = df.set_index("time" if "time" in columns else "date")
+            elif "category" in columns and "value" in columns:
+                visualization_method = "bar_chart"
+                prepared_data = df.pivot(index='category', values='value', columns=df.columns.difference(['category', 'value']))
+            elif len(columns) >= 2:
+                visualization_method = "scatter_chart"
+                prepared_data = df
+            else:
+                visualization_method = "table"
+                prepared_data = df
+        else:
+            visualization_method = "text"
+            prepared_data = str(execution_results)
+
+        return visualization_method, prepared_data.to_dict('list') if isinstance(prepared_data, pd.DataFrame) else prepared_data
     def create_assess_nlq_task(self):
         # Task for the Scrum Master to assess if the prompt is a Natural Language Query (NLQ)
         self.assess_nlq_task = Task(
