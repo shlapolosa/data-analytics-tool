@@ -153,27 +153,6 @@ class CrewBuilder:
         Returns:
             str: A JSON string representing the query results.
         """
-        """
-        Run a SQL query against the postgres database
-        Executes a SQL query against the database and returns the results in JSON format.
-
-        Args:
-            sql (str): The SQL query string to be executed.
-
-        Returns:
-            str: A JSON string representing the query results.
-        Tool to execute a SQL query against the database.
-
-        This function takes a SQL query string, executes it against the database using the
-        PostgresManager instance available in the agent instruments, and returns the results
-        as a JSON string.
-
-        Args:
-            sql (str): The SQL query string to be executed.
-
-        Returns:
-            str: The results of the SQL query in JSON format.
-        """
         self.agent_instruments.db.cur.execute(sql)
         columns = [desc[0] for desc in self.agent_instruments.db.cur.description]
         res = self.agent_instruments.db.cur.fetchall()
@@ -194,24 +173,6 @@ class CrewBuilder:
 
         Returns:
             str: A string containing the similar table definitions.
-        """
-        """
-        Tool to retrieve table definitions similar to the given prompt.
-
-        This function uses the DatabaseEmbedder to find and return table definitions that
-        are likely to be relevant to the prompt provided to the CrewBuilder. The table
-        definitions are returned as a string.
-
-        Returns:
-            str: A string containing the similar table definitions.
-        Retrieves table definitions that are similar to the current prompt.
-
-        This method uses the DatabaseEmbedder to find table definitions that are likely
-        to be relevant to the prompt provided to the CrewBuilder.
-
-        Returns:
-            str: A string containing the similar table definitions.
-        Retrieve similar table definitions based on the current prompt.
         """
         database_embedder = DatabaseEmbedder(self.agent_instruments.db)
         table_definitions = database_embedder.get_similar_table_defs_for_prompt(self.prompt)
