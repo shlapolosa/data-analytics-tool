@@ -4,12 +4,12 @@ from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
 import json
 
 class CrewBuilder:
-    def __init__(self):
+    def __init__(self, agent_instruments: PostgresAgentInstruments):
         self.agents = []
         self.tasks = []
         self.crew = None
         self.process = None
-        self.agent_instruments = PostgresAgentInstruments()  # Property of type PostgresAgentInstruments
+        self.agent_instruments = agent_instruments  # Property of type PostgresAgentInstruments
 
     def create_agents(self):
         # Define the agents with roles and goals
