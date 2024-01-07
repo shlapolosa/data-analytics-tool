@@ -111,7 +111,7 @@ class CrewBuilder:
     def create_execute_sql_task(self):
         # Task for the Data Analyst to execute the SQL
         self.execute_sql_task = Task(
-            description=dedent(f"""
+            description=dedent("""
                                Senior Data Analyst: Execute the SQL query using the run_sql function, which returns the raw_response. Respond in the following strict format only:
                                 ```
                                 sql_input:
@@ -158,7 +158,7 @@ class CrewBuilder:
                                     ...
                                     );
                                 ```           
-                               """),
+                               """).format(POSTGRES_TABLE_DEFINITIONS_CAP_REF=POSTGRES_TABLE_DEFINITIONS_CAP_REF),
             agent=self.data_analyst
         )
         self.tasks.append(self.execute_sql_task)
