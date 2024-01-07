@@ -385,3 +385,8 @@ class CrewBuilder:
         db_manager = PostgresManager()
         db_manager.connect_with_url(os.environ['DATABASE_URL'])
         return db_manager
+        # Check if the response is JSON, if not cast it into JSON
+        try:
+            response_json = json.loads(response)
+        except json.JSONDecodeError:
+            response_json = json.dumps({"response": response})
