@@ -112,14 +112,29 @@ class CrewBuilder:
         # Task for the Data Analyst to execute the SQL
         self.execute_sql_task = Task(
             description=dedent(f"""
-                               Sr Data Analyst. You run the SQL query using the run_sql function.
-                               Remove any non-sql symbols in the query before running.
-                               Response in the format:
-                               ```
-                               sql_input:\n\nsql_input\n\n
-                               raw_response:\n\n the raw response of the query after running the run_sql tool\n\n
-                               {POSTGRES_TABLE_DEFINITIONS_CAP_REF}:\n\n as per the input {POSTGRES_TABLE_DEFINITIONS_CAP_REF} exactly\n\n  
-                               ```           
+                               Senior Data Analyst: Execute the SQL query using the run_sql function, which returns the raw_response. Respond in the following strict format only:
+                                ```
+                                sql_input:
+                                [Insert your SQL query here, replacing {{sql_input}}]
+
+                                raw_response:
+                                [Insert the raw response from the SQL query here, replacing raw_response]
+
+                                Database Schema:
+                                [Insert the PostgreSQL table definitions here, replacing {POSTGRES_TABLE_DEFINITIONS_CAP_REF}]
+                                ```
+
+                                Example Response:
+                                ```
+                                sql_input:
+                                SELECT * FROM atomic.sales;
+
+                                raw_response:
+                                Row 1 data, Row 2 data, ...
+
+                                Database Schema:
+                                Select * from atomic.sales (id serial PRIMARY KEY, product VARCHAR(100), ...);
+                                ```           
                                """),
             agent=self.data_analyst
         )
@@ -130,12 +145,28 @@ class CrewBuilder:
         # Task for the Data Visualization Expert to recommend visualization method
         self.recommend_visualization_task = Task(
             description=dedent(f"""
-                               Recommend the best way to visualize the raw_response and prepare it for the chosen visualization method.
-                               return the format:
-                               ``` 
-                               format:\n\n visualization_method\n\n 
-                               result:\n\nprepared_data\n\n 
-                               sql_input:\n\n sql_input\n\n
+                               Recommend the best way to visualize the raw_response. Prepare the data for the chosen visualization method as the prepared_data. Provide only one option. Respond in this strict format only:
+                               ```
+                                format:
+                                [Insert the best visualization method here, replacing visualization_method]
+
+                                result:
+                                [Insert the prepared data formatted for the chosen visualization method here, replacing prepared_data]
+
+                                sql_input:
+                                [Insert the SQL input query here, replacing sql_input]
+                                ```
+
+                                Example Response:
+                                ```
+                                format:
+                                Bar Chart
+
+                                result:
+                                Prepared data in format suitable for a bar chart (e.g., categories and values)
+
+                                sql_input:
+                                SELECT category, COUNT(*) FROM sales_data GROUP BY category
                                ```
                                """),
             agent=self.data_visualisation_expert
@@ -147,12 +178,22 @@ class CrewBuilder:
         # Task for the Data Visualization Expert to recommend visualization method
         self.response = Task(
             description=dedent(f"""
-                               Summurize all the output after your team has had a view. Return only a json structure of the format:
-                               ``` 
-                               format: format, 
-                               result:result, 
-                               sql: sql_input, 
-                               ```
+                               Summarize all outputs after your team's review. Return the summary in the following JSON format:
+
+                                ```
+                                {
+                                    "result": {
+                                        "prepared_data": "Place the summarized result here",
+                                        "display_format": "Specify the format used for summary"
+                                    },
+                                    "sql": "Insert the SQL input query here"
+                                }
+                                ```
+
+                                Provide clear instructions for each JSON key:
+                                - `prepared_data`: Insert the summarized result of the team's review.
+                                - `display_format`: Specify the format or method used for the summary.
+                                - `sql`: Include the original SQL query that generated the data.
                                """),
             agent=self.scrum_master,
         )
@@ -163,14 +204,28 @@ class CrewBuilder:
         # Task for the Data Engineer to analyze SQL database table structure and generate insights
         self.innovation_task = Task(
             description=dedent(f"""
-                               Analyze SQL databases table structure and generate 3 novel insights for your team to reflect on and query based on the original prompt: {prompt}.
-                               respond with the following: 
+                                Analyze SQL database table structures and generate 3 novel insights based on the original prompt: {prompt}. 
+                                Each insight should be accompanied by its actionable business value and a new SQL query. Respond with the following JSON structure:
 
-                                format:\n\n format\n\n 
-                                result:\n\n result \n\n 
-                                generated_sql:\n\n generated_sql\n\n
-                                if insights_generated exists then insights_generated:\n\n json list containing objects of the following structure: "insight": "description_of_insight","actionable_business_value": "actionable_value temperature=0.7","sql":"new_query temperature=0.7 for the insight" 
-
+                                ```
+                                [
+                                    {
+                                        "insight": "First insight description here",
+                                        "actionable_business_value": "Description of the first insight's actionable business value",
+                                        "sql": "SQL query related to the first insight"
+                                    },
+                                    {
+                                        "insight": "Second insight description here",
+                                        "actionable_business_value": "Description of the second insight's actionable business value",
+                                        "sql": "SQL query related to the second insight"
+                                    },
+                                    {
+                                        "insight": "Third insight description here",
+                                        "actionable_business_value": "Description of the third insight's actionable business value",
+                                        "sql": "SQL query related to the third insight"
+                                    }
+                                ]
+                                ```
                                """),
             agent=self.data_engineer
         )
@@ -190,7 +245,8 @@ class CrewBuilder:
     def create_get_table_definitions_task(self, prompt):
         # Task for the Data Analyst to get the table definitions
         self.get_table_definitions_task = Task(
-            description=dedent(f"""Retrieve the table definitions relevant to the current prompt. given the following prompt: {prompt}. 
+            description=dedent(f"""
+                               Retrieve the table definitions relevant to the current prompt. given the following prompt: {prompt}. 
                                return in exactly the following format: 
                                 ```
                                {POSTGRES_TABLE_DEFINITIONS_CAP_REF}:\n\n as per the tabel definition response from the tools exactly \n\n
