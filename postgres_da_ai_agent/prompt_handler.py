@@ -373,7 +373,7 @@ class PromptHandler:
         self.executor = executor
 
     def __enter__(self) -> PromptExecutor:
-        return self.assess_prompt()
+        return self.assess_prompt(self.db)
 
     def __exit__(self, exc_type, exc_value, traceback):
         pass
