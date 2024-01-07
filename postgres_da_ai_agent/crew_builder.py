@@ -177,7 +177,7 @@ class CrewBuilder:
     def create_response(self):
         # Task for the Data Visualization Expert to recommend visualization method
         self.response = Task(
-            description=dedent("""
+            description=dedent(f"""
                                Summarize all outputs after your team's review. Return the summary in the following JSON format:
 
                                 ```
@@ -385,8 +385,3 @@ class CrewBuilder:
         db_manager = PostgresManager()
         db_manager.connect_with_url(os.environ['DATABASE_URL'])
         return db_manager
-        # Check if the response is JSON, if not cast it into JSON
-        try:
-            response_json = json.loads(response)
-        except json.JSONDecodeError:
-            response_json = json.dumps({"response": response})
