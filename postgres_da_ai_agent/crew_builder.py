@@ -127,6 +127,17 @@ class CrewBuilder:
         self.tasks.append(self.recommend_visualization_task)
         return self
 
+    def create_innovation_task(self, prompt):
+        # Task for the Data Engineer to analyze SQL database table structure and generate insights
+        self.innovation_task = Task(
+            description=dedent(f"""
+                               Analyze SQL databases table structure and generate 3 novel insights for your team to reflect on and query based on the original prompt: {prompt}.
+                               """),
+            agent=self.data_engineer
+        )
+        self.tasks.append(self.innovation_task)
+        return self
+
     def create_crew(self):
         # Instantiate your crew with a sequential process
         self.crew = Crew(
