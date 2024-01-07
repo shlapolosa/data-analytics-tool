@@ -120,7 +120,7 @@ class CrewBuilder:
         self.recommend_visualization_task = Task(
             description=dedent(f"""
                                Recommend the best way to visualize the data and prepare it for the chosen visualization method.
-                               return only a json structure of the form: ```format: visualization_method, result:prepared_data, sql: generated_sql, tokens: total_no_tokens```
+                               return only a json structure of the form: ```format: visualization_method, result:prepared_data, sql: generated_sql, tokens: total_no_tokens, follow_up:insights_generated```
                                """),
             agent=self.data_visualisation_expert
         )
@@ -132,6 +132,7 @@ class CrewBuilder:
         self.innovation_task = Task(
             description=dedent(f"""
                                Analyze SQL databases table structure and generate 3 novel insights for your team to reflect on and query based on the original prompt: {prompt}.
+                               Only responed with a json list containing objects of the following structure: ```"insight": "description_of_insight","actionable_business_value": "actionable_value temperature=0.7","sql":"new_query temperature=0.7" 
                                """),
             agent=self.data_engineer
         )
