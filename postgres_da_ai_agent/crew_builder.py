@@ -5,6 +5,8 @@ from postgres_da_ai_agent.modules.embeddings import DatabaseEmbedder
 from textwrap import dedent
 import json
 
+POSTGRES_TABLE_DEFINITIONS_CAP_REF = "TABLE_DEFINITIONS"
+
 class CrewBuilder:
     def __init__(self, agent_instruments: PostgresAgentInstruments, prompt: str):
         self.agents = []
@@ -87,10 +89,16 @@ class CrewBuilder:
         self.tasks.append(self.assess_nlq_task)
         return self
 
-    def create_generate_sql_task(self):
+    def create_generate_sql_task(self, prompt):
         # Task for the Data Engineer to generate initial SQL
         self.generate_sql_task = Task(
-            description="Generate the initial SQL based on the requirements provided. Only generate the SQL if you have sufficient TABLE_DEFINITIONS to work with. When generating the SQL beware that the tables are in the 'atomic' schema.",
+            description=dedent(f"""
+                               Generate a SQL query to answer the following question: {prompt}.
+                               This query will run on a database whose schema is represented by the {POSTGRES_TABLE_DEFINITIONS_CAP_REF}.
+                               When generating the SQL beware that the tables are in the 'atomic' schema.
+                               Make sure that the SQL you generate is correct for the {POSTGRES_TABLE_DEFINITIONS_CAP_REF} provided.
+                               Only return the SQL and nothing else.
+                               """),
             agent=self.data_engineer
         )
         self.tasks.append(self.generate_sql_task)
@@ -99,7 +107,9 @@ class CrewBuilder:
     def create_execute_sql_task(self):
         # Task for the Data Analyst to execute the SQL
         self.execute_sql_task = Task(
-            description="Execute the SQL provided by the Data Engineer.",
+            description=dedent(f"""
+                               Sr Data Analyst. You run the SQL query using the run_sql function, return only the raw response.
+                               """),
             agent=self.data_analyst
         )
         self.tasks.append(self.execute_sql_task)
@@ -108,7 +118,10 @@ class CrewBuilder:
     def create_recommend_visualization_task(self):
         # Task for the Data Visualization Expert to recommend visualization method
         self.recommend_visualization_task = Task(
-            description="Recommend the best way to visualize the data and prepare it for the chosen visualization method.",
+            description=dedent(f"""
+                               Recommend the best way to visualize the data and prepare it for the chosen visualization method.
+                               return only a json structure of the form: ```format: visualization_method, result:prepared_data, sql: generated_sql, tokens: total_no_tokens```
+                               """),
             agent=self.data_visualisation_expert
         )
         self.tasks.append(self.recommend_visualization_task)
@@ -127,15 +140,17 @@ class CrewBuilder:
     def create_get_table_definitions_task(self, prompt):
         # Task for the Data Analyst to get the table definitions
         self.get_table_definitions_task = Task(
-            description=dedent(f"""Retrieve the table definitions relevant to the current prompt. given the following prompt: {prompt}"""),
+            description=dedent(f"""Retrieve the table definitions relevant to the current prompt. given the following prompt: {prompt}. 
+                               return in exactly the following format: '{prompt} .Use these {POSTGRES_TABLE_DEFINITIONS_CAP_REF} to satisfy the database query.\n\n
+                               table_definitions'"""),
             agent=self.data_analyst
         )
         self.tasks.append(self.get_table_definitions_task)
         return self
 
     def execute(self):
-        self.crew.kickoff() if self.crew else None
-        return self
+        return self.crew.kickoff() if self.crew else None
+  
     
     
     @tool("Executes a given SQL query string against the database.")
@@ -149,13 +164,30 @@ class CrewBuilder:
         Returns:
             str: A JSON string representing the query results.
         """
-        self.agent_instruments.db.cur.execute(sql)
-        columns = [desc[0] for desc in self.agent_instruments.db.cur.description]
-        res = self.agent_instruments.db.cur.fetchall()
+        from postgres_da_ai_agent.modules.db import PostgresManager
+        from dotenv import load_dotenv
+        load_dotenv()
+        import os
+
+        def datetime_handler(obj):
+            """
+            Handle datetime objects when serializing to JSON.
+            """
+            from datetime import datetime
+
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            return str(obj)  # or just return the object unchanged, or another default value
+        
+        db_manager = PostgresManager()
+        db_manager.connect_with_url(os.environ['DATABASE_URL'])
+        db_manager.cur.execute(sql)
+        columns = [desc[0] for desc in db_manager.cur.description]
+        res = db_manager.cur.fetchall()
 
         list_of_dicts = [dict(zip(columns, row)) for row in res]
 
-        json_result = json.dumps(list_of_dicts, indent=4, default=self.agent_instruments.datetime_handler)
+        json_result = json.dumps(list_of_dicts, indent=4, default=datetime_handler)
 
         return json_result
 
@@ -172,11 +204,11 @@ class CrewBuilder:
         """
         from postgres_da_ai_agent.modules.db import PostgresManager
         from dotenv import load_dotenv
-        from postgres_da_ai_agent.crew_builder import get_db_manager
         load_dotenv()
         import os
-    
-        db_manager = get_db_manager()
+
+        db_manager = PostgresManager()
+        db_manager.connect_with_url(os.environ['DATABASE_URL'])
         database_embedder = DatabaseEmbedder(db_manager)
         print(f" the prompt in get_table_definitions is: {prompt}")
 
