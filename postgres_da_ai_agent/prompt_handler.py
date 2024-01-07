@@ -373,7 +373,7 @@ class PromptHandler:
         self.executor = executor
 
     def __enter__(self) -> PromptExecutor:
-        return self.assess_prompt(self.db)
+        return self.assess_prompt()
 
     def __exit__(self, exc_type, exc_value, traceback):
         pass
@@ -412,7 +412,7 @@ class PromptHandler:
         # return 5
     
 class CrewAIDataAnalystPromptExecutor(PromptExecutor):
-    def __init__(self, prompt: str, db: PostgresManager, agent_instruments):
+    def __init__(self, prompt: str, agent_instruments, db: PostgresManager):
         super().__init__(prompt, agent_instruments)
         self.db = db
 
