@@ -427,7 +427,7 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
             .create_crew()
 
         # Execute the crew process for SQL generation and execution
-        result = crew_builder.execute()
+        response = crew_builder.execute()
 
         # Rebuild the crew for innovation task
         crew_builder.create_get_table_definitions_task(self.prompt) \
@@ -437,11 +437,13 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
         # Execute the crew process for innovation
         innovation = crew_builder.execute()
 
+        print("response", response)
+        print("innovation.last_message_str", innovation)
         # Construct and return the ConversationResult
         return ConversationResult(
             success=True,
-            sql=result.sql,
-            result=result.result,
+            sql=response.sql,
+            result=response.result,
             follow_up=innovation
         )
 
