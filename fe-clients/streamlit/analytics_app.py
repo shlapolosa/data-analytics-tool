@@ -49,6 +49,7 @@ def prompt_response(raw_prompt):
     response_string = ""
     response_object = None
             
+
     # prompt = f"Fulfill this database query: {raw_prompt}. "
 
     assistant_name = "Turbo4"
@@ -56,8 +57,9 @@ def prompt_response(raw_prompt):
     session_id = rand.generate_session_id(assistant_name + raw_prompt)
 
     response = None
+    run_mode = st.session_state.get('run_mode', 'CrewAI')  # Get the run_mode from the session state, default to 'CrewAI'
     with PostgresAgentInstruments(DB_URL, session_id) as (agent_instruments, db):
-        with PromptHandler(raw_prompt, agent_instruments, db) as executor:
+        with PromptHandler(raw_prompt, agent_instruments, db, executor=run_mode) as executor:  # Pass the run_mode to the PromptHandler
             response = executor.execute()
             response_string = response
             response_object = np.random.randn(30, 3) if random.randint(1, 10) % 2 else None
@@ -186,6 +188,7 @@ def display_assistant_response(full_response, the_thing):
 # Initialize chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
+    st.session_state.run_mode = 'CrewAI'  # Set the default run_mode to 'CrewAI' when the page loads
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
