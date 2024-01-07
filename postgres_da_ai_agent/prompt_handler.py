@@ -431,17 +431,15 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
 
         # Execute the crew process for SQL generation and execution
         response = crew_builder.execute()
-        print("CrewAIDataAnalystPromptExecutor.execute: Response = ", response)
-        # Ensure the response is a valid JSON string
-        cleaned_string = response.strip('`').replace('\\n', '\n')
-        print("CrewAIDataAnalystPromptExecutor.execute: Cleaned Response = ", cleaned_string)
-        # Parse the response to extract the result and format
+        # Ensure the response is a valid JSON string and handle any exceptions
         try:
+            cleaned_string = response.strip('`').replace('\\n', '\n').replace('``', '\"')
             response_json = json.loads(cleaned_string)
             print("CrewAIDataAnalystPromptExecutor.execute: Response JSON = ", response_json)
         except json.JSONDecodeError as e:
             print(f"Failed to parse response as JSON: {e}")
             return ConversationResult(success=False, error_message=str(e))
+
 
         # Print the JSON response
 
