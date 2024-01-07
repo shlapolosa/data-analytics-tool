@@ -177,7 +177,7 @@ class CrewBuilder:
     def create_response(self):
         # Task for the Data Visualization Expert to recommend visualization method
         self.response = Task(
-            description=dedent(f"""
+            description=dedent("""
                                Summarize all outputs after your team's review. Return the summary in the following JSON format:
 
                                 ```
