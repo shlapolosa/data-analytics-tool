@@ -8,6 +8,7 @@ from postgres_da_ai_agent.agents import agents
 from postgres_da_ai_agent.types import ConversationResult
 from postgres_da_ai_agent.crew_builder import CrewBuilder
 import os
+import json
 
 POSTGRES_TABLE_DEFINITIONS_CAP_REF = "TABLE_DEFINITIONS"
 
@@ -423,32 +424,41 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
             .create_generate_sql_task(self.prompt) \
             .create_execute_sql_task() \
             .create_recommend_visualization_task() \
+            .create_innovation_task(self.prompt)\
             .create_response() \
             .create_crew()
 
         # Execute the crew process for SQL generation and execution
         response = crew_builder.execute()
+        cleaned_string = response.replace('```', '').replace('\\n', '')
+        response_json = None
+        try:
+            # Try to load the response as JSON
+            response_json = json.loads(cleaned_string)
+        except json.JSONDecodeError:
+            # If it's not JSON, convert it to a JSON string
+            response_json = json.loads(json.dumps({"response": cleaned_string}))
+
+            # Print the JSON response
+            print("CrewAIDataAnalystPromptExecutor.execute: Respone = ",response_json)
 
         # Rebuild the crew for innovation task
-        crew_builder.create_get_table_definitions_task(self.prompt) \
-            .create_innovation_task(self.prompt) \
-            .create_crew()
+        # crew_builder.create_get_table_definitions_task(self.prompt) \
+        #     .create_innovation_task(self.prompt) \
+        #     .create_crew()
 
         # Execute the crew process for innovation
-        innovation = crew_builder.execute()
+        # innovation = crew_builder.execute()
 
         # Parse the response to extract the result and format
-        execution_results = response.result.get('prepared_data', {}).get('execution_results')
-        visualization_format = response.result.get('format')
+        execution_results = response_json['response']['result']
+  
 
         # Construct and return the ConversationResult with the parsed data
         return ConversationResult(
             success=True,
-            sql=response.sql,
-            result={
-                "prepared_data": execution_results,
-                "format": visualization_format
-            },
-            follow_up=innovation
+            sql=response_json['response']['sql'],
+            result=response_json['response']['result'],
+            follow_up=response_json['response']['insights']
         )
 
