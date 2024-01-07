@@ -373,7 +373,7 @@ class PromptHandler:
         self.executor = executor
 
     def __enter__(self) -> PromptExecutor:
-        return self.assess_prompt()
+        return self.assess_prompt(self.db)
 
     def __exit__(self, exc_type, exc_value, traceback):
         pass
@@ -390,7 +390,7 @@ class PromptHandler:
                     case "Autogen":
                         return AutogenDataAnalystPromptExecutor(self.prompt, db, self.agent_instruments)
                     case "CrewAI":
-                        return CrewAIDataAnalystPromptExecutor(self.prompt, db, self.agent_instruments)
+                        return CrewAIDataAnalystPromptExecutor(self.prompt, self.agent_instruments, db)
                     case _:
                         raise ValueError(f"Unknown executor type: {self.executor}")
 
