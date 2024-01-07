@@ -421,16 +421,22 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
 
         # Build the crew with the necessary tasks
         crew_builder.create_agents() \
-                    .create_get_table_definitions_task() \
-                    .create_generate_sql_task() \
+                    .create_get_table_definitions_task(self.prompt) \
+                    .create_generate_sql_task(self.prompt) \
                     .create_execute_sql_task() \
                     .create_recommend_visualization_task() \
-                    .create_crew() \
-                    .create_process()
+                    .create_response() \
+                    .create_crew() 
 
         # Execute the crew process
-        crew_builder.execute()
+        result = crew_builder.execute()
 
+        crew_builder.create_get_table_definitions_task(self.prompt) \
+            .create_innovation_task(self.prompt)\
+            .create_crew()
+
+        innovation = crew_builder.execute()
+        print("gate_orchestrator.last_message_str", innovation)
         # Return the result of the execution
-        return crew_builder.process.result
+        return result
 

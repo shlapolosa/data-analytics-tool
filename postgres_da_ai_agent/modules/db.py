@@ -23,7 +23,7 @@ class PostgresManager:
             self.conn.close()
 
     def connect_with_url(self, url):
-        self.conn = psycopg2.connect(url,options="-c search_path=atoic,public")
+        self.conn = psycopg2.connect(url,options="-c search_path=atomic,public")
         self.cur = self.conn.cursor()
 
     def close(self):

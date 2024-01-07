@@ -97,7 +97,11 @@ class CrewBuilder:
                                This query will run on a database whose schema is represented by the {POSTGRES_TABLE_DEFINITIONS_CAP_REF}.
                                When generating the SQL beware that the tables are in the 'atomic' schema.
                                Make sure that the SQL you generate is correct for the {POSTGRES_TABLE_DEFINITIONS_CAP_REF} provided.
-                               Only return the SQL and nothing else.
+                               Respond with only exactly this format, DO NOT alter the format:
+                               ```
+                               sql_input:\n\n raw generated sql\n\n
+                               {POSTGRES_TABLE_DEFINITIONS_CAP_REF}:\n\n as per the input {POSTGRES_TABLE_DEFINITIONS_CAP_REF} exactly\n\n
+                               ```
                                """),
             agent=self.data_engineer
         )
@@ -108,7 +112,14 @@ class CrewBuilder:
         # Task for the Data Analyst to execute the SQL
         self.execute_sql_task = Task(
             description=dedent(f"""
-                               Sr Data Analyst. You run the SQL query using the run_sql function, return only the raw response.
+                               Sr Data Analyst. You run the SQL query using the run_sql function.
+                               Remove any non-sql symbols in the query before running.
+                               Response in the format:
+                               ```
+                               sql_input:\n\nsql_input\n\n
+                               raw_response:\n\n the raw response of the query after running the run_sql tool\n\n
+                               {POSTGRES_TABLE_DEFINITIONS_CAP_REF}:\n\n as per the input {POSTGRES_TABLE_DEFINITIONS_CAP_REF} exactly\n\n  
+                               ```           
                                """),
             agent=self.data_analyst
         )
@@ -119,20 +130,47 @@ class CrewBuilder:
         # Task for the Data Visualization Expert to recommend visualization method
         self.recommend_visualization_task = Task(
             description=dedent(f"""
-                               Recommend the best way to visualize the data and prepare it for the chosen visualization method.
-                               return only a json structure of the form: ```format: visualization_method, result:prepared_data, sql: generated_sql, tokens: total_no_tokens, follow_up:insights_generated```
+                               Recommend the best way to visualize the raw_response and prepare it for the chosen visualization method.
+                               return the format:
+                               ``` 
+                               format:\n\n visualization_method\n\n 
+                               result:\n\nprepared_data\n\n 
+                               sql_input:\n\n sql_input\n\n
+                               ```
                                """),
             agent=self.data_visualisation_expert
         )
         self.tasks.append(self.recommend_visualization_task)
         return self
 
+    def create_response(self):
+        # Task for the Data Visualization Expert to recommend visualization method
+        self.response = Task(
+            description=dedent(f"""
+                               Summurize all the output after your team has had a view. Return only a json structure of the format:
+                               ``` 
+                               format: format, 
+                               result:result, 
+                               sql: sql_input, 
+                               ```
+                               """),
+            agent=self.scrum_master,
+        )
+        self.tasks.append(self.response)
+        return self
+    
     def create_innovation_task(self, prompt):
         # Task for the Data Engineer to analyze SQL database table structure and generate insights
         self.innovation_task = Task(
             description=dedent(f"""
                                Analyze SQL databases table structure and generate 3 novel insights for your team to reflect on and query based on the original prompt: {prompt}.
-                               Only responed with a json list containing objects of the following structure: ```"insight": "description_of_insight","actionable_business_value": "actionable_value temperature=0.7","sql":"new_query temperature=0.7" 
+                               respond with the following: 
+
+                                format:\n\n format\n\n 
+                                result:\n\n result \n\n 
+                                generated_sql:\n\n generated_sql\n\n
+                                if insights_generated exists then insights_generated:\n\n json list containing objects of the following structure: "insight": "description_of_insight","actionable_business_value": "actionable_value temperature=0.7","sql":"new_query temperature=0.7 for the insight" 
+
                                """),
             agent=self.data_engineer
         )
@@ -153,15 +191,20 @@ class CrewBuilder:
         # Task for the Data Analyst to get the table definitions
         self.get_table_definitions_task = Task(
             description=dedent(f"""Retrieve the table definitions relevant to the current prompt. given the following prompt: {prompt}. 
-                               return in exactly the following format: '{prompt} .Use these {POSTGRES_TABLE_DEFINITIONS_CAP_REF} to satisfy the database query.\n\n
-                               table_definitions'"""),
+                               return in exactly the following format: 
+                                ```
+                               {POSTGRES_TABLE_DEFINITIONS_CAP_REF}:\n\n as per the tabel definition response from the tools exactly \n\n
+                               ```
+                               """),
             agent=self.data_analyst
         )
         self.tasks.append(self.get_table_definitions_task)
         return self
 
     def execute(self):
-        return self.crew.kickoff() if self.crew else None
+        response = self.crew.kickoff() if self.crew else None
+        self.tasks = []
+        return response
   
     
     
@@ -176,6 +219,7 @@ class CrewBuilder:
         Returns:
             str: A JSON string representing the query results.
         """
+        print(f"SQL query to be ran: {sql}")
         from postgres_da_ai_agent.modules.db import PostgresManager
         from dotenv import load_dotenv
         load_dotenv()
