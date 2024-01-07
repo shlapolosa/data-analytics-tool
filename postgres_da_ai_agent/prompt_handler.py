@@ -416,6 +416,7 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
         super().__init__(prompt, agent_instruments)
         self.db = db
 
+class CrewAIDataAnalystPromptExecutor(PromptExecutor):
     def execute(self) -> ConversationResult:
         # Initialize CrewBuilder and build the crew with the necessary tasks
         crew_builder = CrewBuilder(self.agent_instruments, self.prompt) \
@@ -430,17 +431,17 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
 
         # Execute the crew process for SQL generation and execution
         response = crew_builder.execute()
-        cleaned_string = response.replace('```', '').replace('\\n', '')
-        response_json = None
+        # Parse the response to extract the result and format
         try:
-            # Try to load the response as JSON
-            response_json = json.loads(cleaned_string)
-        except json.JSONDecodeError:
-            # If it's not JSON, convert it to a JSON string
-            response_json = json.loads(json.dumps({"response": cleaned_string}))
+            response_json = json.loads(response)
+        except json.JSONDecodeError as e:
+            print(f"Failed to parse response as JSON: {e}")
+            return ConversationResult(success=False, error_message=str(e))
 
             # Print the JSON response
             print("CrewAIDataAnalystPromptExecutor.execute: Respone = ",response_json)
+        # Print the JSON response
+        print("CrewAIDataAnalystPromptExecutor.execute: Respone = ",response_json)
 
         # Rebuild the crew for innovation task
         # crew_builder.create_get_table_definitions_task(self.prompt) \
@@ -450,6 +451,8 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
         # Execute the crew process for innovation
         # innovation = crew_builder.execute()
 
+        execution_results = response_json.get('result', {})
+
         # Parse the response to extract the result and format
         execution_results = response_json['response']['result']
   
@@ -457,8 +460,11 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
         # Construct and return the ConversationResult with the parsed data
         return ConversationResult(
             success=True,
+            sql=response_json.get('sql', ''),
+            result=execution_results,
+            follow_up=response_json.get('insights', [])
+        )
             sql=response_json['response']['sql'],
             result=response_json['response']['result'],
             follow_up=response_json['response']['insights']
         )
-
