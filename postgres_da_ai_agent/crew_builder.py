@@ -385,3 +385,13 @@ class CrewBuilder:
         db_manager = PostgresManager()
         db_manager.connect_with_url(os.environ['DATABASE_URL'])
         return db_manager
+        # Check if the response is JSON, if not cast it into JSON
+        try:
+            response_json = json.loads(response)
+        except json.JSONDecodeError:
+            response_json = json.dumps({"response": response})
+
+        # Print the JSON response
+        print("CrewAIDataAnalystPromptExecutor.execute: Response JSON = ", response_json)
+
+        # Continue with the rest of the code
