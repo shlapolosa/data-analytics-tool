@@ -390,7 +390,7 @@ class PromptHandler:
                     case "Autogen":
                         return AutogenDataAnalystPromptExecutor(self.prompt, db, self.agent_instruments)
                     case "CrewAI":
-                        return CrewAIDataAnalystPromptExecutor(self.prompt, self.agent_instruments, db)
+                        return CrewAIDataAnalystPromptExecutor(self.prompt, self.agent_instruments)
                     case _:
                         raise ValueError(f"Unknown executor type: {self.executor}")
 
@@ -412,9 +412,9 @@ class PromptHandler:
         # return 5
     
 class CrewAIDataAnalystPromptExecutor(PromptExecutor):
-    def __init__(self, prompt: str, agent_instruments, db: PostgresManager):
+    def __init__(self, prompt: str, agent_instruments):
         super().__init__(prompt, agent_instruments)
-        self.db = db
+        self.db = agent_instruments.db_manager
 
 class CrewAIDataAnalystPromptExecutor(PromptExecutor):
     def execute(self) -> ConversationResult:
