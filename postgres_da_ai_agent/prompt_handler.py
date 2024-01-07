@@ -431,7 +431,8 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
 
         # Execute the crew process for SQL generation and execution
         response = crew_builder.execute()
-        cleaned_string = response.replace('```', '').replace('\\n', '')
+        # Ensure the response is a valid JSON string
+        cleaned_string = response.strip('`').replace('\\n', '\n')
         # Parse the response to extract the result and format
         try:
             response_json = json.loads(cleaned_string)
