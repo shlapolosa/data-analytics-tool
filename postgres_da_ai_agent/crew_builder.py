@@ -118,7 +118,7 @@ class CrewBuilder:
                                 [Insert your SQL query here, replacing {{sql_input}}]
 
                                 raw_response:
-                                [Insert the raw response from the SQL query here, replacing raw_response]
+                                [Insert the raw response from the SQL query here as a json object, replacing raw_response]
 
                                 Database Schema:
                                 [Insert the PostgreSQL table definitions here, replacing {POSTGRES_TABLE_DEFINITIONS_CAP_REF}]
@@ -127,13 +127,36 @@ class CrewBuilder:
                                 Example Response:
                                 ```
                                 sql_input:
-                                SELECT * FROM atomic.sales;
+                                SELECT event, COUNT(*) AS frequency FROM atomic.events GROUP BY event ORDER BY frequency DESC;
 
                                 raw_response:
-                                Row 1 data, Row 2 data, ...
+                                [
+                                    {
+                                        "event": "page_view",
+                                        "frequency": 160
+                                    },
+                                    {
+                                        "event": "page_ping",
+                                        "frequency": 39
+                                    },
+                                    {
+                                        "event": "unstruct",
+                                        "frequency": 9
+                                    },
+                                    {
+                                        "event": "struct",
+                                        "frequency": 1
+                                    }
+                                ]
 
                                 Database Schema:
-                                Select * from atomic.sales (id serial PRIMARY KEY, product VARCHAR(100), ...);
+
+                                    CREATE TABLE atomic.events (
+                                    app_id character varying(255),
+                                    platform character varying(255),
+                                    true_tstamp timestamp without time zone,
+                                    ...
+                                    );
                                 ```           
                                """),
             agent=self.data_analyst
@@ -189,11 +212,6 @@ class CrewBuilder:
                                     "sql": "Insert the SQL input query here"
                                 }
                                 ```
-
-                                Provide clear instructions for each JSON key:
-                                - `prepared_data`: Insert the summarized result of the team's review.
-                                - `display_format`: Specify the format or method used for the summary.
-                                - `sql`: Include the original SQL query that generated the data.
                                """),
             agent=self.scrum_master,
         )
@@ -204,7 +222,7 @@ class CrewBuilder:
         # Task for the Data Engineer to analyze SQL database table structure and generate insights
         self.innovation_task = Task(
             description=dedent("""
-                                Analyze SQL database table structures and generate 3 novel insights based on the original prompt: '{}'. 
+                                Analyze SQL database table structures and generate 3 novel insights based on the original prompt: '{prompt}'. 
                                 Each insight should be accompanied by its actionable business value and a new SQL query. Respond with the following JSON structure:
 
                                 ```
