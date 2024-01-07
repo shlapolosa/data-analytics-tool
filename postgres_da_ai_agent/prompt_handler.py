@@ -433,7 +433,7 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
         response = crew_builder.execute()
         # Ensure the response is a valid JSON string and handle any exceptions
         try:
-            cleaned_string = response.strip('`').replace('\\n', '\n').replace('``', '\"')
+            cleaned_string = response.replace('```json', '').strip('`').replace('\\n', '\n').replace('``', '\"')
             response_json = json.loads(cleaned_string)
             print("CrewAIDataAnalystPromptExecutor.execute: Response JSON = ", response_json)
         except json.JSONDecodeError as e:
