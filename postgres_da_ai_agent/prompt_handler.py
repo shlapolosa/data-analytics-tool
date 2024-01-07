@@ -437,13 +437,18 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
         # Execute the crew process for innovation
         innovation = crew_builder.execute()
 
-        print("response", response)
-        print("innovation.last_message_str", innovation)
-        # Construct and return the ConversationResult
+        # Parse the response to extract the result and format
+        execution_results = response.result.get('prepared_data', {}).get('execution_results')
+        visualization_format = response.result.get('format')
+
+        # Construct and return the ConversationResult with the parsed data
         return ConversationResult(
             success=True,
             sql=response.sql,
-            result=response.result,
+            result={
+                "prepared_data": execution_results,
+                "format": visualization_format
+            },
             follow_up=innovation
         )
 
