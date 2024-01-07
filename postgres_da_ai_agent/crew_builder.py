@@ -203,8 +203,8 @@ class CrewBuilder:
     def create_innovation_task(self, prompt):
         # Task for the Data Engineer to analyze SQL database table structure and generate insights
         self.innovation_task = Task(
-            description=dedent(f"""
-                                Analyze SQL database table structures and generate 3 novel insights based on the original prompt: {prompt}. 
+            description=dedent("""
+                                Analyze SQL database table structures and generate 3 novel insights based on the original prompt: '{}'. 
                                 Each insight should be accompanied by its actionable business value and a new SQL query. Respond with the following JSON structure:
 
                                 ```
@@ -226,7 +226,7 @@ class CrewBuilder:
                                     }
                                 ]
                                 ```
-                               """),
+                               """).format(prompt),
             agent=self.data_engineer
         )
         self.tasks.append(self.innovation_task)
