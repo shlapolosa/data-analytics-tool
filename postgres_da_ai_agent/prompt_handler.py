@@ -416,27 +416,32 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
         self.db = db
 
     def execute(self) -> ConversationResult:
-        # Create a CrewBuilder instance
-        crew_builder = CrewBuilder(self.agent_instruments, self.prompt)
-
-        # Build the crew with the necessary tasks
-        crew_builder.create_agents() \
-                    .create_get_table_definitions_task(self.prompt) \
-                    .create_generate_sql_task(self.prompt) \
-                    .create_execute_sql_task() \
-                    .create_recommend_visualization_task() \
-                    .create_response() \
-                    .create_crew() 
-
-        # Execute the crew process
-        result = crew_builder.execute()
-
-        crew_builder.create_get_table_definitions_task(self.prompt) \
-            .create_innovation_task(self.prompt)\
+        # Initialize CrewBuilder and build the crew with the necessary tasks
+        crew_builder = CrewBuilder(self.agent_instruments, self.prompt) \
+            .create_agents() \
+            .create_get_table_definitions_task(self.prompt) \
+            .create_generate_sql_task(self.prompt) \
+            .create_execute_sql_task() \
+            .create_recommend_visualization_task() \
+            .create_response() \
             .create_crew()
 
+        # Execute the crew process for SQL generation and execution
+        result = crew_builder.execute()
+
+        # Rebuild the crew for innovation task
+        crew_builder.create_get_table_definitions_task(self.prompt) \
+            .create_innovation_task(self.prompt) \
+            .create_crew()
+
+        # Execute the crew process for innovation
         innovation = crew_builder.execute()
-        print("gate_orchestrator.last_message_str", innovation)
-        # Return the result of the execution
-        return result
+
+        # Construct and return the ConversationResult
+        return ConversationResult(
+            success=True,
+            sql=result.sql,
+            result=result.result,
+            follow_up=innovation
+        )
 
