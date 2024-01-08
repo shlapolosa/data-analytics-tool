@@ -1,11 +1,15 @@
 from crewai import Agent, Task, Crew, Process
 from langchain.tools import tool
+from langchain.llms import Ollama
 from postgres_da_ai_agent.agents.instruments import PostgresAgentInstruments
 from postgres_da_ai_agent.modules.embeddings import DatabaseEmbedder
 from textwrap import dedent
 import json
 
 POSTGRES_TABLE_DEFINITIONS_CAP_REF = "TABLE_DEFINITIONS"
+
+ollama_llm = Ollama(model="sqlcoder")
+mistral_llm = Ollama(model="mistral")
 
 class CrewBuilder:
     def __init__(self, agent_instruments: PostgresAgentInstruments, prompt: str):
@@ -21,9 +25,10 @@ class CrewBuilder:
         self.data_engineer = Agent(
             role='Data Engineer',
             goal='Prepare and transform data for analytical or operational uses',
-            backstory="""You are a meticulous Data Engineer responsible for building and maintaining the data architecture of the company. Your expertise in data modeling, ETL processes, and data warehousing is unparalleled.""",
+            backstory="""You are a meticulous Data Engineer responsible for building and maintaining the data architecture of the company. Your expertise in data modeling, ETL processes, and data warehousing is unparalleled. Pay very close attention to detail and make sure any SQL yu produce is error free. You double check yourself to be sure.""",
             verbose=True,
-            allow_delegation=False
+            allow_delegation=False,
+            # llm=ollama_llm
         )
 
         self.data_analyst = Agent(
@@ -35,7 +40,8 @@ class CrewBuilder:
                 self.get_table_definitions
             ],
             verbose=True,
-            allow_delegation=False
+            allow_delegation=False,
+            # llm=ollama_llm
         )
 
         self.scrum_master = Agent(
@@ -43,7 +49,9 @@ class CrewBuilder:
             goal="Facilitate the team's Agile practices and processes",
             backstory="""You are the Scrum Master, the team's coach, and facilitator. Your primary goal is to ensure that the team adheres to Agile practices and works efficiently towards their goals.""",
             verbose=True,
-            allow_delegation=False
+            allow_delegation=False,
+            # llm=mistral_llm
+
         )
 
         self.data_visualisation_expert = Agent(
@@ -54,7 +62,8 @@ class CrewBuilder:
                 self.recommend_visualization
             ],
             verbose=True,
-            allow_delegation=False
+            allow_delegation=False,
+            # llm=mistral_llm
         )
 
 
@@ -63,7 +72,8 @@ class CrewBuilder:
             goal="You're a data innovator. You analyze SQL databases table structure and generate 3 novel insights for your team to reflect on and query. Format your insights in JSON format.",
             backstory="""As a Data Innovator, you have a unique ability to see beyond the data. You connect the dots between disparate pieces of information to generate new, valuable insights that can transform the way your team operates.""",
             verbose=True,
-            allow_delegation=False
+            allow_delegation=False,
+            # llm=ollama_llm
         )
 
         # Add the agents to the list
@@ -121,7 +131,7 @@ class CrewBuilder:
                                 [Insert the raw response from the SQL query here as a json object, replacing raw_response]
 
                                 Database Schema:
-                                [Insert the PostgreSQL table definitions here, replacing {POSTGRES_TABLE_DEFINITIONS_CAP_REF}]
+                                [Insert the full PostgreSQL table definitions here, replacing {{POSTGRES_TABLE_DEFINITIONS_CAP_REF}}. dont shorten or abbreviate]
                                 ```
 
                                 Example Response:
@@ -155,10 +165,9 @@ class CrewBuilder:
                                     app_id character varying(255),
                                     platform character varying(255),
                                     true_tstamp timestamp without time zone,
-                                    ...
                                     );
                                 ```           
-                               """).format(POSTGRES_TABLE_DEFINITIONS_CAP_REF=POSTGRES_TABLE_DEFINITIONS_CAP_REF),
+                               """),
             agent=self.data_analyst
         )
         self.tasks.append(self.execute_sql_task)
@@ -167,17 +176,20 @@ class CrewBuilder:
     def create_recommend_visualization_task(self):
         # Task for the Data Visualization Expert to recommend visualization method
         self.recommend_visualization_task = Task(
-            description=dedent(f"""
+            description=dedent("""
                                Recommend the best way to visualize the raw_response. Prepare the data for the chosen visualization method as the prepared_data. Provide only one option. Respond in this strict format only:
                                ```
                                 format:
-                                [Insert the best visualization method here, replacing visualization_method]
+                                [Insert the best visualization method here, strickly only 1, replacing visualization_method]
 
                                 result:
-                                [Insert the prepared data formatted for the chosen visualization method here, replacing prepared_data]
+                                [Insert the prepared data which is derived by converting the raw_response formatted for the chosen visualization method here, replacing prepared_data]
 
                                 sql_input:
                                 [Insert the SQL input query here, replacing sql_input]
+                               
+                                Database Schema:
+                                [Insert the full PostgreSQL table definitions here, replacing {{POSTGRES_TABLE_DEFINITIONS_CAP_REF}}. dont shorten or abbreviate]
                                 ```
 
                                 Example Response:
@@ -186,10 +198,38 @@ class CrewBuilder:
                                 Bar Chart
 
                                 result:
-                                Prepared data in format suitable for a bar chart (e.g., categories and values)
-
+                               
+                                ```{
+                                    "prepared_data": 
+                                    [
+                                        {
+                                            "event": "page_view",
+                                            "frequency": 160
+                                        },
+                                        {
+                                            "event": "page_ping",
+                                            "frequency": 39
+                                        },
+                                        {
+                                            "event": "unstruct",
+                                            "frequency": 9
+                                        },
+                                        {
+                                            "event": "struct",
+                                            "frequency": 1
+                                        }
+                                    ]
+                                }```
                                 sql_input:
                                 SELECT category, COUNT(*) FROM sales_data GROUP BY category
+                               
+                                Database Schema:
+
+                                CREATE TABLE atomic.events (
+                                    app_id character varying(255),
+                                    platform character varying(255),
+                                    true_tstamp timestamp without time zone,
+                                );
                                ```
                                """),
             agent=self.data_visualisation_expert
@@ -201,15 +241,17 @@ class CrewBuilder:
         # Task for the Data Visualization Expert to recommend visualization method
         self.response = Task(
             description=dedent("""
-                               Summarize all outputs after your team's review. Return the summary in the following JSON format:
+                               Construct the ouput after your team's review. Make sure the response is well formed json adhering to standards and without any illigal characters such as spaces, \n, `, \\n or any other none displaying characters.
+                               Return the summary in the following JSON format:
 
                                 ```
                                 {
                                     "result": {
-                                        "prepared_data": "Place the summarized result here",
-                                        "display_format": "Specify the format used for summary"
+                                        "prepared_data": "Insert the response here, replacing prepared_data",
+                                        "display_format": "Insert the best visualization method here only 1 suggestion, replacing visualization_method"
                                     },
-                                    "sql": "Insert the SQL input query here"
+                                    "sql": "Insert the SQL input query here",
+                                    "insights": "Insert the insights here, replacing insights"
                                 }
                                 ```
                                """),
@@ -221,30 +263,75 @@ class CrewBuilder:
     def create_innovation_task(self, prompt):
         # Task for the Data Engineer to analyze SQL database table structure and generate insights
         self.innovation_task = Task(
-            description=dedent("""
-                                Analyze SQL database table structures and generate 3 novel insights based on the original prompt: '{prompt}'. 
+            description=dedent(f"""
+                                Analyze SQL database table structures given by the Database Schema and generate 3 novel insights based on the original prompt: {prompt}. 
                                 Each insight should be accompanied by its actionable business value and a new SQL query. Respond with the following JSON structure:
 
+                                format:
+                                [Insert the best visualization method here, strickly only 1, replacing visualization_method]
+
+                                prepared_data:
+                                [Insert the prepared data which is derived by converting the raw_response formatted for the chosen visualization method here, replacing prepared_data]
+
+                                sql_input:
+                                [Insert the SQL input query here, replacing sql_input]
+
+                                insights:
+                                [Insert insights here, replacing insights]
                                 ```
-                                [
-                                    {
+
+                                Example Response:
+                            
+                                format:
+                                Bar Chart
+
+                                prepared_data:
+                               
+                                ```{{
+                                    "prepared_data": 
+                                    [
+                                        {{
+                                            "event": "page_view",
+                                            "frequency": 160
+                                        }},
+                                        {{
+                                            "event": "page_ping",
+                                            "frequency": 39
+                                        }},
+                                        {{
+                                            "event": "unstruct",
+                                            "frequency": 9
+                                        }},
+                                        {{
+                                            "event": "struct",
+                                            "frequency": 1
+                                        }}
+                                    ]
+                                }}```
+
+                                sql_input:
+                                SELECT category, COUNT(*) FROM sales_data GROUP BY category
+
+                                insights: 
+                                ```[
+                                    {{
                                         "insight": "First insight description here",
                                         "actionable_business_value": "Description of the first insight's actionable business value",
                                         "sql": "SQL query related to the first insight"
-                                    },
-                                    {
+                                    }},
+                                    {{
                                         "insight": "Second insight description here",
                                         "actionable_business_value": "Description of the second insight's actionable business value",
                                         "sql": "SQL query related to the second insight"
-                                    },
-                                    {
+                                    }},
+                                    {{
                                         "insight": "Third insight description here",
                                         "actionable_business_value": "Description of the third insight's actionable business value",
                                         "sql": "SQL query related to the third insight"
-                                    }
+                                    }}
                                 ]
                                 ```
-                               """).format(prompt),
+                               """),
             agent=self.data_engineer
         )
         self.tasks.append(self.innovation_task)

@@ -454,13 +454,18 @@ class CrewAIDataAnalystPromptExecutor(PromptExecutor):
         execution_results = response_json.get('result', {})
 
         # Parse the response to extract the result and format
-        execution_results = response_json['response']['result']
+        execution_results = response_json['result']
   
 
         # Construct and return the ConversationResult with the parsed data
         return ConversationResult(
             success=True,
             sql=response_json.get('sql', ''),
-            result=execution_results,
-            follow_up=response_json.get('insights', [])
+            result=response_json["result"],
+            follow_up=response_json.get('insights', []),
+            messages=[],
+            cost=0.0,
+            tokens=0,
+            error_message="",
+            last_message_str=""
         )
